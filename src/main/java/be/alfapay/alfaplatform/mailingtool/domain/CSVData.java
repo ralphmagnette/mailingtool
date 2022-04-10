@@ -11,10 +11,12 @@ import java.io.Serializable;
 @JsonIgnoreProperties({"hibernateLazyInitializer"})
 @Entity
 @Table(name="ap_csv")
-public class CSVData implements Serializable {
+public class CSVData {
     @Id
     @Column(name = "id", nullable = false)
     private Long id;
+    @Column(name = "csvId")
+    private String csvId;
     @Column(name = "firstname")
     private String firstName;
     @Column(name = "lastname")
@@ -34,6 +36,14 @@ public class CSVData implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCsvId() {
+        return csvId;
+    }
+
+    public void setCsvId(String csvId) {
+        this.csvId = csvId;
     }
 
     public String getFirstName() {
