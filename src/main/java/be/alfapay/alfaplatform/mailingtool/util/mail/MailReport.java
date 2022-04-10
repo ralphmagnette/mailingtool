@@ -1,4 +1,4 @@
-package be.alfapay.alfaplatform.mailingtool.mail;
+package be.alfapay.alfaplatform.mailingtool.util.mail;
 
 import com.sendgrid.Method;
 import com.sendgrid.Request;

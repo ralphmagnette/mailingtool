@@ -1,6 +1,7 @@
-package be.alfapay.alfaplatform.mailingtool.mail;
+package be.alfapay.alfaplatform.mailingtool.util.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
+import be.alfapay.alfaplatform.mailingtool.rest.csv.CSVRepository;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -10,6 +11,7 @@ import com.sendgrid.helpers.mail.objects.Attachments;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -22,6 +24,9 @@ import java.util.List;
 @Component
 public class MailSender implements IMailSender {
     private static final String SENDGRID_APIKEY = "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";
+
+    @Autowired
+    private CSVRepository repository;
 
     public MailSender() {
 
