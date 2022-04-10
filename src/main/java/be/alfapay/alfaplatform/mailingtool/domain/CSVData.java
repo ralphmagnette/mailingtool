@@ -1,13 +1,17 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer"})
 @Entity
 @Table(name="ap_csv")
-public class CSVData {
+public class CSVData implements Serializable {
     @Id
     @Column(name = "id", nullable = false)
     private Long id;
@@ -66,6 +70,10 @@ public class CSVData {
 
     @Override
     public String toString() {
-        return "[id=" + id + ", firstname=" + firstName + ", lastname=" + lastName + ", email=" + email + ", amount=" + amount + "]";
+        return "id: " + id + "\n" +
+                "firstname: " + firstName + "\n" +
+                "lastname: " + lastName + "\n" +
+                "email: " + email + "\n" +
+                "amount: " + amount;
     }
 }

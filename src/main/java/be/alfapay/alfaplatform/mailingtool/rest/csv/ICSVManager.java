@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ICSVManager {
     void save(MultipartFile file);
-    List<CSVData> getAllData();
+    List<CSVData> getAll();
+    CSVData getById(Long id);
 }
