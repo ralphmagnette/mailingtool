@@ -2,6 +2,7 @@ package be.alfapay.alfaplatform.mailingtool.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 public class SendGridEvent {

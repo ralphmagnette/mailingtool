@@ -3,12 +3,15 @@ package be.alfapay.alfaplatform.mailingtool.rest.csv;
 import be.alfapay.alfaplatform.mailingtool.domain.CSVData;
 import be.alfapay.alfaplatform.mailingtool.rest.csv.exceptions.NotFoundException;
 import be.alfapay.alfaplatform.mailingtool.util.CSVParserUtil;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CSVManager implements ICSVManager {
@@ -32,10 +35,6 @@ public class CSVManager implements ICSVManager {
 
     @Override
     public CSVData getById(Long id) {
-        CSVData data = repository.getById(id);
-        if (data.getId() == null) {
-            throw new NotFoundException("Gebruiker met id " + data.getId() + " kan niet gevonden worden.");
-        }
-        return data;
+        return repository.findById(id).orElse(null);
     }
 }

@@ -1,7 +1,8 @@
 package be.alfapay.alfaplatform.mailingtool.util.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
-import be.alfapay.alfaplatform.mailingtool.rest.csv.CSVRepository;
+import be.alfapay.alfaplatform.mailingtool.domain.CSVData;
+import be.alfapay.alfaplatform.mailingtool.rest.csv.CSVManager;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -26,16 +27,10 @@ public class MailSender implements IMailSender {
     private static final String SENDGRID_APIKEY = "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";
 
     @Autowired
-    private CSVRepository repository;
+    private CSVManager manager;
 
     public MailSender() {
 
-    }
-
-    public static void main(String[] args) {
-        String htmlText = "D:\\Github\\Gift2Give\\Backend\\mailingtool\\src\\main\\resources\\templates\\storecard\\default-template.html";
-        MailSender sender = new MailSender();
-        sender.sendMail("info@gift2give.org", "ralphmagnette@hotmail.com", "default template", null, htmlText);
     }
 
     @Override
@@ -67,7 +62,8 @@ public class MailSender implements IMailSender {
 
         String[] toEmails = toString.split(",");
         Personalization personalization = new Personalization();
-        personalization.addSubstitution("{MESSAGE}", "Test message");
+        CSVData data = manager.getById(1L);
+        personalization.addSubstitution("{MESSAGE}", "Beste " + data.getFirstName() + " " + data.getLastName());
         for (String email : toEmails) {
             personalization.addTo(new Email(email));
         }
