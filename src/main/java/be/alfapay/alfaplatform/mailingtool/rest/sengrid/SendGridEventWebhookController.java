@@ -28,20 +28,15 @@ import java.util.Map;
 public class SendGridEventWebhookController {
     private List<SendGridEvent> sgEvents = new ArrayList<>();
 
-//    @PostMapping("events")
-//    public ResponseEntity<String> receivedSGEventHook(@RequestBody List<SendGridEvent> events) {
-//        try {
-//            sgEvents.addAll(events);
-//            return new ResponseEntity<>(HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-//        }
-//    }
-
     @PostMapping(value = "events")
-    public void processInboundSendGridEmails(HttpServletRequest request, HttpServletResponse response,
-                                             SendGridEvent event) {
-        sgEvents.add(event);
+    public ResponseEntity<String> processInboundSendGridEmails(HttpServletRequest request, HttpServletResponse response,
+                                                               @RequestParam(required = false) MultipartFile file, SendGridEvent event) {
+        try {
+            sgEvents.add(event);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
     }
 
     @GetMapping("events")
