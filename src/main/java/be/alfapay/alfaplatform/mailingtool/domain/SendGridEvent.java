@@ -32,7 +32,7 @@ public class SendGridEvent {
     @JsonProperty("url")
     private String url;
     @JsonProperty("url_offset")
-    private String url_offset;
+    private String urlOffset;
     @JsonProperty("attempt")
     private int attempt;
     @JsonProperty("category")
@@ -150,12 +150,12 @@ public class SendGridEvent {
         this.url = url;
     }
 
-    public String getUrl_offset() {
-        return url_offset;
+    public String getUrlOffset() {
+        return urlOffset;
     }
 
-    public void setUrl_offset(String url_offset) {
-        this.url_offset = url_offset;
+    public void setUrlOffset(String urlOffset) {
+        this.urlOffset = urlOffset;
     }
 
     public int getAttempt() {
@@ -205,7 +205,7 @@ public class SendGridEvent {
                 "response: " + response + "\n" +
                 "tls: " + tls + "\n" +
                 "url: " + url + "\n" +
-                "url_offset: " + url_offset + "\n" +
+                "url_offset: " + urlOffset + "\n" +
                 "attempt: " + attempt + "\n" +
                 "category: " + category + "\n" +
                 "type: " + type + "\n" +
