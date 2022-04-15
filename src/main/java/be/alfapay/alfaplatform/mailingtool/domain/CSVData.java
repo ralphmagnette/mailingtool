@@ -11,8 +11,6 @@ public class CSVData {
     @Id
     @Column(name = "id")
     private Long id;
-    @Column(name = "csvId")
-    private String csvId;
     @Column(name = "firstname")
     private String firstName;
     @Column(name = "lastname")
@@ -32,14 +30,6 @@ public class CSVData {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getCsvId() {
-        return csvId;
-    }
-
-    public void setCsvId(String csvId) {
-        this.csvId = csvId;
     }
 
     public String getFirstName() {

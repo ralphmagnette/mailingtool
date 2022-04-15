@@ -3,12 +3,16 @@ package be.alfapay.alfaplatform.mailingtool.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 public class SendGridEvent {
     @JsonProperty("email")
     private String email;
+    @JsonProperty("mailing_id")
+    private UUID mailingId;
     @JsonProperty("timestamp")
-    private LocalDateTime timeStamp;
+    private Long timeStamp;
     @JsonProperty("event")
     private String eventType;
     @JsonProperty("smtp-id")
@@ -35,8 +39,6 @@ public class SendGridEvent {
     private String urlOffset;
     @JsonProperty("attempt")
     private int attempt;
-    @JsonProperty("category")
-    private String category;
     @JsonProperty("type")
     private String type;
     @JsonProperty("sg_machine_open")
@@ -54,11 +56,19 @@ public class SendGridEvent {
         this.email = email;
     }
 
-    public LocalDateTime getTimeStamp() {
+    public UUID getMailingId() {
+        return mailingId;
+    }
+
+    public void setMailingId(UUID mailingId) {
+        this.mailingId = mailingId;
+    }
+
+    public Long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(LocalDateTime timeStamp) {
+    public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
     }
 
@@ -166,14 +176,6 @@ public class SendGridEvent {
         this.attempt = attempt;
     }
 
-    public String getCategory() {
-        return category;
-    }
-
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
     public String getType() {
         return type;
     }
@@ -193,6 +195,7 @@ public class SendGridEvent {
     @Override
     public String toString() {
         return "email: " + email + "\n" +
+                "mailing_id: " + mailingId + "\n" +
                 "timestamp: " + timeStamp + "\n" +
                 "event_type: " + eventType + "\n" +
                 "smtp-id: " + smtpId + "\n" +
@@ -207,7 +210,6 @@ public class SendGridEvent {
                 "url: " + url + "\n" +
                 "url_offset: " + urlOffset + "\n" +
                 "attempt: " + attempt + "\n" +
-                "category: " + category + "\n" +
                 "type: " + type + "\n" +
                 "sg_machine_open: " + sgMachineOpen;
     }

@@ -2,7 +2,7 @@ package be.alfapay.alfaplatform.mailingtool.util.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
 import be.alfapay.alfaplatform.mailingtool.domain.CSVData;
-import be.alfapay.alfaplatform.mailingtool.rest.csv.CSVManager;
+import be.alfapay.alfaplatform.mailingtool.rest.mail.MailManager;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -21,30 +21,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class MailSender implements IMailSender {
     private static final String SENDGRID_APIKEY = "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";
 
     @Autowired
-    private CSVManager manager;
+    private MailManager manager;
 
     public MailSender() {
 
     }
 
     @Override
-    public boolean sendMail(String from, String to, String subject, String msgText) {
-        return sendMail(from, to, subject, msgText, null, null);
+    public boolean sendMail(String from, String to, String subject, String msgText, Personalization personalization) {
+        return sendMail(from, to, subject, msgText, null, null, null);
     }
 
     @Override
-    public boolean sendMail(String from, String to, String subject, String plainText, String htmlText) {
-        return sendMail(from, to, subject, plainText, htmlText, null);
+    public boolean sendMail(String from, String to, String subject, String plainText, String htmlText, Personalization personalization) {
+        return sendMail(from, to, subject, plainText, htmlText, null, null);
     }
 
     @Override
-    public boolean sendMail(String fromString, String toString, String subject, String plainText, String htmlText, List<Attachment> mailAttachments) {
+    public boolean sendMail(String fromString, String toString, String subject, String plainText, String htmlText,
+                            Personalization personalization, List<Attachment> mailAttachments) {
         if (toString == null || toString.isEmpty()) {
             return false;
         }
@@ -60,13 +62,11 @@ public class MailSender implements IMailSender {
             content = new Content("text/plain", plainText);
         }
 
-        String[] toEmails = toString.split(",");
-        Personalization personalization = new Personalization();
-        CSVData data = manager.getById(1L);
-        personalization.addSubstitution("{MESSAGE}", "Beste " + data.getFirstName() + " " + data.getLastName());
+        String[] toEmails = toString.trim().split(",");
         for (String email : toEmails) {
             personalization.addTo(new Email(email));
         }
+        personalization.addCustomArg("mailing_id", UUID.randomUUID().toString());
 
         Mail mail = new Mail();
         mail.setFrom(from);

@@ -27,11 +27,10 @@ public class CSVParserUtil {
                 CSVData row = new CSVData();
                 String[] dataSplit = line.split(" |;");
                 row.setId(Long.parseLong(dataSplit[0]));
-                row.setCsvId(dataSplit[1]);
-                row.setFirstName(dataSplit[2]);
-                row.setLastName(dataSplit[3]);
-                row.setEmail(dataSplit[4]);
-                row.setAmount(Integer.parseInt(dataSplit[5]));
+                row.setFirstName(dataSplit[1]);
+                row.setLastName(dataSplit[2]);
+                row.setEmail(dataSplit[3]);
+                row.setAmount(Integer.parseInt(dataSplit[4]));
                 data.add(row);
             }
             return data;

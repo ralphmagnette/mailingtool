@@ -1,5 +1,7 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
+import com.sendgrid.helpers.mail.objects.Personalization;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ public class Mail {
     private String subject;
     private String plainText;
     private String htmlText;
+    private Personalization personalization;
     private List<Attachment> attachments = new ArrayList<>();
 
     public Mail() {
@@ -53,6 +56,14 @@ public class Mail {
 
     public void setHtmlText(String htmlText) {
         this.htmlText = htmlText;
+    }
+
+    public Personalization getPersonalization() {
+        return personalization;
+    }
+
+    public void setPersonalization(Personalization personalization) {
+        this.personalization = personalization;
     }
 
     public List<Attachment> getAttachments() {

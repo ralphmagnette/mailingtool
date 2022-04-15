@@ -1,6 +1,6 @@
-package be.alfapay.alfaplatform.mailingtool.rest.csv.exceptions;
+package be.alfapay.alfaplatform.mailingtool.rest.mail.exceptions;
 
-import be.alfapay.alfaplatform.mailingtool.rest.csv.message.ResponseMessage;
+import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

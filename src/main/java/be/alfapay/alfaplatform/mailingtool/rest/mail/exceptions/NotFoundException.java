@@ -1,4 +1,4 @@
-package be.alfapay.alfaplatform.mailingtool.rest.csv.exceptions;
+package be.alfapay.alfaplatform.mailingtool.rest.mail.exceptions;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {

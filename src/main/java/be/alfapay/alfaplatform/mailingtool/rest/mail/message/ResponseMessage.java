@@ -1,4 +1,4 @@
-package be.alfapay.alfaplatform.mailingtool.rest.csv.message;
+package be.alfapay.alfaplatform.mailingtool.rest.mail.message;
 
 public class ResponseMessage {
     private String message;
