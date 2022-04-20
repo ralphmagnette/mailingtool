@@ -27,9 +27,6 @@ import java.util.UUID;
 public class MailSender implements IMailSender {
     private static final String SENDGRID_APIKEY = "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";
 
-    @Autowired
-    private MailManager manager;
-
     public MailSender() {
 
     }
@@ -61,12 +58,6 @@ public class MailSender implements IMailSender {
         } else {
             content = new Content("text/plain", plainText);
         }
-
-        String[] toEmails = toString.trim().split(",");
-        for (String email : toEmails) {
-            personalization.addTo(new Email(email));
-        }
-        personalization.addCustomArg("mailing_id", UUID.randomUUID().toString());
 
         Mail mail = new Mail();
         mail.setFrom(from);

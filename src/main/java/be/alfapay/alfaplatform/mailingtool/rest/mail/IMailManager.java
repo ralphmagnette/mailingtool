@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface IMailManager {
     void save(MultipartFile file);
-    void sendMail(Mail mail);
     List<CSVData> getAll();
     CSVData getById(Long id);
+    void sendMail(Mail mail);
 }
