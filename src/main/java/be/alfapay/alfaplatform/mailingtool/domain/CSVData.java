@@ -1,22 +1,24 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name="ap_csv")
 public class CSVData {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private Long id;
+
     @Column(name = "firstname")
     private String firstName;
+
     @Column(name = "lastname")
     private String lastName;
+
     @Column(name = "email")
     private String email;
+
     @Column(name = "amount")
     private int amount;
 

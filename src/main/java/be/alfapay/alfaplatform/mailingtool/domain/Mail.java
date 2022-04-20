@@ -1,21 +1,64 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import com.sendgrid.helpers.mail.objects.Personalization;
-
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
+@Table(name = "ap_mailing")
 public class Mail {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "userId")
+    private String userId;
+
+    @Column(name = "sender")
     private String from;
+
+    @Column(name = "receiver")
     private String to;
+
+    @Column(name = "subject")
     private String subject;
+
+    @Column(name = "plainText")
     private String plainText;
+
+    @Column(name = "htmlText")
     private String htmlText;
-    private Personalization personalization;
+
+    @Column(name = "csvId")
+    private Long csvId;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "csvId", updatable = false, insertable = false)
+    private CSVData csvData;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "attachmentId")
     private List<Attachment> attachments = new ArrayList<>();
 
     public Mail() {
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getFrom() {
@@ -58,12 +101,20 @@ public class Mail {
         this.htmlText = htmlText;
     }
 
-    public Personalization getPersonalization() {
-        return personalization;
+    public Long getCsvId() {
+        return csvId;
     }
 
-    public void setPersonalization(Personalization personalization) {
-        this.personalization = personalization;
+    public void setCsvId(Long csvId) {
+        this.csvId = csvId;
+    }
+
+    public CSVData getCsvData() {
+        return csvData;
+    }
+
+    public void setCsvData(CSVData csvData) {
+        this.csvData = csvData;
     }
 
     public List<Attachment> getAttachments() {
