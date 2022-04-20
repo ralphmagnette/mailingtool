@@ -7,8 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface IMailManager {
-    void save(MultipartFile file);
-    List<CSVData> getAll();
-    CSVData getById(Long id);
-    void sendMail(Mail mail);
+    void saveCSVData(MultipartFile file);
+    List<CSVData> getAllCSVData();
+    CSVData getCSVDataById(Long id);
+
+    void sendAndSaveMail(Mail mail);
+    List<Mail> getAllMailData();
+    Mail getMailDataById(Long id);
 }

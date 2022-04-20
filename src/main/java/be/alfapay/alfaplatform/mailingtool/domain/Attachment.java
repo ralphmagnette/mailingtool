@@ -7,6 +7,7 @@ import javax.persistence.*;
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "data")

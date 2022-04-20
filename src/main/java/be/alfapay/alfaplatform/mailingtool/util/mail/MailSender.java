@@ -1,8 +1,6 @@
 package be.alfapay.alfaplatform.mailingtool.util.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
-import be.alfapay.alfaplatform.mailingtool.domain.CSVData;
-import be.alfapay.alfaplatform.mailingtool.rest.mail.MailManager;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -12,7 +10,6 @@ import com.sendgrid.helpers.mail.objects.Attachments;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -21,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class MailSender implements IMailSender {

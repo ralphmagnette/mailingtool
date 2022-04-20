@@ -1,8 +1,10 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "ap_mailing")
@@ -30,14 +32,26 @@ public class Mail {
     @Column(name = "htmlText")
     private String htmlText;
 
+    @Column(name = "sendDate")
+    private LocalDateTime sendDate;
+
+    @Column(name = "opened")
+    private boolean isOpened;
+
+    @Column(name = "clicked")
+    private boolean isClicked;
+
+    @Column(name = "bounced")
+    private boolean isBounced;
+
     @Column(name = "csvId")
     private Long csvId;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "csvId", updatable = false, insertable = false)
     private CSVData csvData;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "attachmentId")
     private List<Attachment> attachments = new ArrayList<>();
 
@@ -99,6 +113,38 @@ public class Mail {
 
     public void setHtmlText(String htmlText) {
         this.htmlText = htmlText;
+    }
+
+    public LocalDateTime getSendDate() {
+        return sendDate;
+    }
+
+    public void setSendDate(LocalDateTime sendDate) {
+        this.sendDate = sendDate;
+    }
+
+    public boolean isOpened() {
+        return isOpened;
+    }
+
+    public void setOpened(boolean opened) {
+        isOpened = opened;
+    }
+
+    public boolean isClicked() {
+        return isClicked;
+    }
+
+    public void setClicked(boolean clicked) {
+        isClicked = clicked;
+    }
+
+    public boolean isBounced() {
+        return isBounced;
+    }
+
+    public void setBounced(boolean bounced) {
+        isBounced = bounced;
     }
 
     public Long getCsvId() {

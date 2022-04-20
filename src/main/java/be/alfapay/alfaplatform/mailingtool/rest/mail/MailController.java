@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class MailController {
         }
 
         try {
-            mailManager.save(file);
+            mailManager.saveCSVData(file);
             message = "File: " + file.getOriginalFilename() + " is geupload.";
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
@@ -43,21 +44,21 @@ public class MailController {
     }
 
     @GetMapping("csv/data")
-    public ResponseEntity<List<CSVData>> getAll() {
+    public ResponseEntity<List<CSVData>> getAllCSVData() {
         try {
-            List<CSVData> data = mailManager.getAll();
+            List<CSVData> data = mailManager.getAllCSVData();
             if (data.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
             return ResponseEntity.status(HttpStatus.OK).body(data);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
     }
 
     @GetMapping("csv/data/{id}")
-    public ResponseEntity<CSVData> getById(@PathVariable Long id) throws NotFoundException {
-        CSVData data = mailManager.getById(id);
+    public ResponseEntity<CSVData> getCSVDataById(@PathVariable Long id) {
+        CSVData data = mailManager.getCSVDataById(id);
         if (data == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
@@ -67,11 +68,33 @@ public class MailController {
     @PostMapping("send")
     public ResponseEntity<ResponseMessage> sendMail(@RequestBody Mail mail) {
         try {
-            mailManager.sendMail(mail);
+            mailManager.sendAndSaveMail(mail);
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage("Email is verstuurd."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
+    }
+
+    @GetMapping("data")
+    public ResponseEntity<List<Mail>> getAllMailData() {
+        try {
+            List<Mail> sendMails = mailManager.getAllMailData();
+            if (sendMails.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(sendMails);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+        }
+    }
+
+    @GetMapping("data/{id}")
+    public ResponseEntity<Mail> getMailDataById(@PathVariable Long id) {
+        Mail data = mailManager.getMailDataById(id);
+        if (data == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).body(data);
     }
 
     @PostMapping(value = "report/events")

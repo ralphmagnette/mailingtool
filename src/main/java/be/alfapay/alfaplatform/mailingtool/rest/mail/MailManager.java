@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class MailManager implements IMailManager {
     @Autowired
     private CSVRepository csvRepository;
+
     @Autowired
     private MailRepository mailRepository;
 
@@ -25,35 +27,48 @@ public class MailManager implements IMailManager {
     private MailSender mailSender;
 
     @Override
-    public void save(MultipartFile file) {
+    public void saveCSVData(MultipartFile file) {
         try {
             List<CSVData> data = CSVParserUtil.csvToData(file.getInputStream());
             csvRepository.saveAll(data);
         } catch (IOException e) {
-            throw new RuntimeException("fail to store csv data: " + e.getMessage());
+            throw new RuntimeException("Kan data uit CSV-bestand niet opslaan: " + e.getMessage());
         }
     }
 
     @Override
-    public List<CSVData> getAll() {
+    public List<CSVData> getAllCSVData() {
         return csvRepository.findAll();
     }
 
     @Override
-    public CSVData getById(Long id) {
+    public CSVData getCSVDataById(Long id) {
         return csvRepository.findById(id).orElse(null);
     }
 
     @Override
-    public void sendMail(Mail mail) {
+    public void sendAndSaveMail(Mail mail) {
         String[] toEmails = mail.getTo().split(",(\s)");
         for (String email : toEmails) {
             CSVData data = csvRepository.findByEmail(email);
             Personalization personalization = new Personalization();
             personalization.addTo(new Email(email));
+            mail.setCsvId(data.getId());
+            mail.setSendDate(LocalDateTime.now());
             personalization.addCustomArg("mailing_id", UUID.randomUUID().toString());
             personalization.addSubstitution("{MESSAGE}", "Beste " + data.getFirstName() + " " + data.getLastName());
             mailSender.sendMail(mail.getFrom(), mail.getTo(), mail.getSubject(), mail.getPlainText(), mail.getHtmlText(), personalization, mail.getAttachments());
+            mailRepository.save(mail);
         }
+    }
+
+    @Override
+    public List<Mail> getAllMailData() {
+        return mailRepository.findAll();
+    }
+
+    @Override
+    public Mail getMailDataById(Long id) {
+        return mailRepository.findById(id).orElse(null);
     }
 }
