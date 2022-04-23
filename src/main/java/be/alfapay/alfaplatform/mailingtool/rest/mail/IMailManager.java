@@ -1,17 +1,13 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
-import be.alfapay.alfaplatform.mailingtool.domain.CSVData;
 import be.alfapay.alfaplatform.mailingtool.domain.Mail;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface IMailManager {
-    void saveCSVData(MultipartFile file);
-    List<CSVData> getAllCSVData();
-    CSVData getCSVDataById(Long id);
-
-    void sendAndSaveMail(Mail mail);
+    void uploadFileAndSendMail(MultipartFile file);
     List<Mail> getAllMailData();
-    Mail getMailDataById(Long id);
+    Mail getMailDataById(UUID id);
 }

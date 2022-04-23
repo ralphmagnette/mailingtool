@@ -1,70 +1,78 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "ap_mailing")
 public class Mail {
+    @Column(name = "article_id")
+    private Integer articleId;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Long id;
+    @Column(name = "mailing_id")
+    private UUID mailingId;
 
-    @Column(name = "userId")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "mailing_id")
+    private MailSendTo sendTo;
+
+    @Column(name = "user_id")
     private String userId;
-
-    @Column(name = "sender")
-    private String from;
-
-    @Column(name = "receiver")
-    private String to;
 
     @Column(name = "subject")
     private String subject;
 
-    @Column(name = "plainText")
-    private String plainText;
+    @Column(name = "csv")
+    private String csv;
 
-    @Column(name = "htmlText")
-    private String htmlText;
+    @Column(name = "template")
+    private String template;
 
-    @Column(name = "sendDate")
-    private LocalDateTime sendDate;
+    @Column(name = "date")
+    private LocalDate date;
 
-    @Column(name = "opened")
-    private boolean isOpened;
+    @Column(name = "send_date")
+    private LocalDate sendDate;
 
-    @Column(name = "clicked")
-    private boolean isClicked;
+    @Column(name = "open")
+    private int open;
+
+    @Column(name = "click")
+    private int click;
 
     @Column(name = "bounced")
-    private boolean isBounced;
-
-    @Column(name = "csvId")
-    private Long csvId;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "csvId", updatable = false, insertable = false)
-    private CSVData csvData;
-
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "attachmentId")
-    private List<Attachment> attachments = new ArrayList<>();
+    private int bounced;
 
     public Mail() {
 
     }
 
-    public Long getId() {
-        return id;
+    public Integer getArticleId() {
+        return articleId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setArticleId(Integer articleId) {
+        this.articleId = articleId;
+    }
+
+    public UUID getMailingId() {
+        return mailingId;
+    }
+
+    public void setMailingId(UUID mailingId) {
+        this.mailingId = mailingId;
+    }
+
+    public MailSendTo getSendTo() {
+        return sendTo;
+    }
+
+    public void setSendTo(MailSendTo sendTo) {
+        this.sendTo = sendTo;
     }
 
     public String getUserId() {
@@ -75,22 +83,6 @@ public class Mail {
         this.userId = userId;
     }
 
-    public String getFrom() {
-        return from;
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
-    }
-
-    public String getTo() {
-        return to;
-    }
-
-    public void setTo(String to) {
-        this.to = to;
-    }
-
     public String getSubject() {
         return subject;
     }
@@ -99,75 +91,60 @@ public class Mail {
         this.subject = subject;
     }
 
-    public String getPlainText() {
-        return plainText;
+
+    public String getCsv() {
+        return csv;
     }
 
-    public void setPlainText(String plainText) {
-        this.plainText = plainText;
+    public void setCsv(String csv) {
+        this.csv = csv;
     }
 
-    public String getHtmlText() {
-        return htmlText;
+    public String getTemplate() {
+        return template;
     }
 
-    public void setHtmlText(String htmlText) {
-        this.htmlText = htmlText;
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
-    public LocalDateTime getSendDate() {
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalDate getSendDate() {
         return sendDate;
     }
 
-    public void setSendDate(LocalDateTime sendDate) {
+    public void setSendDate(LocalDate sendDate) {
         this.sendDate = sendDate;
     }
 
-    public boolean isOpened() {
-        return isOpened;
+    public int getOpen() {
+        return open;
     }
 
-    public void setOpened(boolean opened) {
-        isOpened = opened;
+    public void setOpen(int open) {
+        this.open = open;
     }
 
-    public boolean isClicked() {
-        return isClicked;
+    public int getClick() {
+        return click;
     }
 
-    public void setClicked(boolean clicked) {
-        isClicked = clicked;
+    public void setClick(int click) {
+        this.click = click;
     }
 
-    public boolean isBounced() {
-        return isBounced;
+    public int getBounced() {
+        return bounced;
     }
 
-    public void setBounced(boolean bounced) {
-        isBounced = bounced;
-    }
-
-    public Long getCsvId() {
-        return csvId;
-    }
-
-    public void setCsvId(Long csvId) {
-        this.csvId = csvId;
-    }
-
-    public CSVData getCsvData() {
-        return csvData;
-    }
-
-    public void setCsvData(CSVData csvData) {
-        this.csvData = csvData;
-    }
-
-    public List<Attachment> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(List<Attachment> attachments) {
-        this.attachments = attachments;
+    public void setBounced(int bounced) {
+        this.bounced = bounced;
     }
 }

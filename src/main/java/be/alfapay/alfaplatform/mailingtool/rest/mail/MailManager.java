@@ -1,9 +1,8 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
-import be.alfapay.alfaplatform.mailingtool.domain.CSVData;
 import be.alfapay.alfaplatform.mailingtool.domain.Mail;
-import be.alfapay.alfaplatform.mailingtool.util.CSVParserUtil;
-import be.alfapay.alfaplatform.mailingtool.util.mail.MailSender;
+import be.alfapay.alfaplatform.mailingtool.util.FileParserUtil;
+import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,54 +10,52 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class MailManager implements IMailManager {
     @Autowired
-    private CSVRepository csvRepository;
-
-    @Autowired
     private MailRepository mailRepository;
 
     @Autowired
-    private MailSender mailSender;
+    private MailSendToRepository mailSendToRepository;
 
-    @Override
-    public void saveCSVData(MultipartFile file) {
+    @Autowired
+    private MailSenderUtil mailSenderUtil;
+
+    public void uploadFileAndSendMail(MultipartFile file) {
         try {
-            List<CSVData> data = CSVParserUtil.csvToData(file.getInputStream());
-            csvRepository.saveAll(data);
+            List<Mail> receivers = FileParserUtil.readDataOutOfFile(file.getInputStream());
+
+            Mail mail = new Mail();
+            mail.setMailingId(UUID.randomUUID());
+            for (Mail data : receivers) {
+                Personalization personalization = new Personalization();
+                personalization.addTo(new Email(data.getSendTo().getEmail()));
+                data.setMailingId(mail.getMailingId());
+                data.getSendTo().setMailingId(mail.getMailingId());
+                data.setDate(LocalDate.now());
+                if (data.getSendDate() == null) {
+                    data.setSendDate(data.getDate());
+                }
+                personalization.addCustomArg("mailing_id", mail.getMailingId().toString());
+                personalization.addSubstitution("{MESSAGE}", "Beste " + data.getSendTo().getFirstName() + " " + data.getSendTo().getLastName());
+                mail.setArticleId(data.getArticleId());
+                mail.setSendTo(data.getSendTo());
+                mail.setUserId(data.getUserId());
+                mail.setSubject(data.getSubject());
+                mail.setCsv(data.getCsv());
+                mail.setTemplate(data.getTemplate());
+                mail.setDate(data.getDate());
+                mail.setSendDate(data.getSendDate());
+                mailSenderUtil.sendMail("info@gift2give.org", mail.getSendTo().getEmail(), mail.getSubject(), mail.getTemplate(), personalization, mail.getSendTo().getAttachments());
+                mailSendToRepository.save(mail.getSendTo());
+            }
+            mailRepository.save(mail);
         } catch (IOException e) {
             throw new RuntimeException("Kan data uit CSV-bestand niet opslaan: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public List<CSVData> getAllCSVData() {
-        return csvRepository.findAll();
-    }
-
-    @Override
-    public CSVData getCSVDataById(Long id) {
-        return csvRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public void sendAndSaveMail(Mail mail) {
-        String[] toEmails = mail.getTo().split(",(\s)");
-        for (String email : toEmails) {
-            CSVData data = csvRepository.findByEmail(email);
-            Personalization personalization = new Personalization();
-            personalization.addTo(new Email(email));
-            mail.setCsvId(data.getId());
-            mail.setSendDate(LocalDateTime.now());
-            personalization.addCustomArg("mailing_id", UUID.randomUUID().toString());
-            personalization.addSubstitution("{MESSAGE}", "Beste " + data.getFirstName() + " " + data.getLastName());
-            mailSender.sendMail(mail.getFrom(), mail.getTo(), mail.getSubject(), mail.getPlainText(), mail.getHtmlText(), personalization, mail.getAttachments());
-            mailRepository.save(mail);
         }
     }
 
@@ -68,7 +65,7 @@ public class MailManager implements IMailManager {
     }
 
     @Override
-    public Mail getMailDataById(Long id) {
+    public Mail getMailDataById(UUID id) {
         return mailRepository.findById(id).orElse(null);
     }
 }

@@ -1,6 +1,7 @@
-package be.alfapay.alfaplatform.mailingtool.util.mail;
+package be.alfapay.alfaplatform.mailingtool.util;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
+import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -20,39 +21,26 @@ import java.util.Base64;
 import java.util.List;
 
 @Component
-public class MailSender implements IMailSender {
+public class MailSenderUtil {
     private static final String SENDGRID_APIKEY = "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";
 
-    public MailSender() {
+    public MailSenderUtil() {
 
     }
 
-    @Override
-    public boolean sendMail(String from, String to, String subject, String msgText, Personalization personalization) {
-        return sendMail(from, to, subject, msgText, null, null, null);
-    }
-
-    @Override
-    public boolean sendMail(String from, String to, String subject, String plainText, String htmlText, Personalization personalization) {
-        return sendMail(from, to, subject, plainText, htmlText, null, null);
-    }
-
-    @Override
-    public boolean sendMail(String fromString, String toString, String subject, String plainText, String htmlText,
+    public boolean sendMail(String fromString, String toString, String subject, String template,
                             Personalization personalization, List<Attachment> mailAttachments) {
         if (toString == null || toString.isEmpty()) {
             return false;
         }
         boolean mailSent = true;
         Email from = new Email(fromString);
-        Content content;
-        if (htmlText != null) {
-            Path htmlTemplate = Path.of(htmlText);
+        Content content = new Content();
+        if (template != null) {
+            Path htmlTemplate = Path.of(template);
             content = new Content();
             content.setType("text/html");
             content.setValue(getContentFromHtmlTemplate(htmlTemplate));
-        } else {
-            content = new Content("text/plain", plainText);
         }
 
         Mail mail = new Mail();
