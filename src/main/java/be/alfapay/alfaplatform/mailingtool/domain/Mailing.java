@@ -1,6 +1,7 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -8,13 +9,14 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "ap_mailing")
-public class Mail {
+public class Mailing {
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type="org.hibernate.type.UUIDCharType")
     private UUID id;
 
-    @Column(name = "article_id")
+    @Column(name = "article_id", nullable = false)
     private Integer articleId;
 
     @Column(name = "user_id")
@@ -44,7 +46,7 @@ public class Mail {
     @Column(name = "bounced")
     private int bounced;
 
-    public Mail() {
+    public Mailing() {
 
     }
 

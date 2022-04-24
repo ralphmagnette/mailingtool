@@ -1,6 +1,6 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
-import be.alfapay.alfaplatform.mailingtool.domain.Mail;
+import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileParserUtil;
@@ -24,7 +24,7 @@ public class MailController {
     private MailManager mailManager;
 
     @PostMapping("send")
-    public ResponseEntity<ResponseMessage> uploadFileAndSendMail(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ResponseMessage> processMailing(@RequestParam("file") MultipartFile file) {
         String message = "";
         if (!FileParserUtil.hasCSVFormat(file)) {
             message = "Upload een csv file!";
@@ -32,7 +32,7 @@ public class MailController {
         }
 
         try {
-            mailManager.uploadFileAndSendMail(file);
+            mailManager.processMailing(file);
             message = "File: " + file.getOriginalFilename() + " is geupload en mail is verzonden.";
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
@@ -42,21 +42,21 @@ public class MailController {
     }
 
     @GetMapping("data")
-    public ResponseEntity<List<Mail>> getAllMailData() {
+    public ResponseEntity<List<Mailing>> getAllMailingData() {
         try {
-            List<Mail> sendMails = mailManager.getAllMailData();
-            if (sendMails.isEmpty()) {
+            List<Mailing> sendMailings = mailManager.getAllMailings();
+            if (sendMailings.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
-            return ResponseEntity.status(HttpStatus.OK).body(sendMails);
+            return ResponseEntity.status(HttpStatus.OK).body(sendMailings);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
     }
 
     @GetMapping("data/{id}")
-    public ResponseEntity<Mail> getMailDataById(@PathVariable UUID id) {
-        Mail data = mailManager.getMailDataById(id);
+    public ResponseEntity<Mailing> getMailingDataById(@PathVariable UUID id) {
+        Mailing data = mailManager.getMailingById(id);
         if (data == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }

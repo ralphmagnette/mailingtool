@@ -1,5 +1,7 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +30,13 @@ public class MailSendTo {
     @Column(name = "giftcard")
     private String giftCard;
 
-    @Column(name = "mailing_id")
+    @Column(name = "mailing_id", updatable = false, insertable = false)
+    @Type(type="org.hibernate.type.UUIDCharType")
     private UUID mailingId;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "mailing_id")
-    private Mail mail;
+    private Mailing mailing;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "attachment_id")
@@ -106,12 +109,12 @@ public class MailSendTo {
         this.mailingId = mailingId;
     }
 
-    public Mail getMail() {
-        return mail;
+    public Mailing getMailing() {
+        return mailing;
     }
 
-    public void setMail(Mail mail) {
-        this.mail = mail;
+    public void setMailing(Mailing mailing) {
+        this.mailing = mailing;
     }
 
     public List<Attachment> getAttachments() {

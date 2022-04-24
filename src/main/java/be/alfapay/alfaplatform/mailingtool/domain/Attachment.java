@@ -16,7 +16,7 @@ public class Attachment {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "mimeType")
+    @Column(name = "mime_type")
     private String mimeType;
 
     public Attachment() {

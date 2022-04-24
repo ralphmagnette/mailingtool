@@ -1,6 +1,7 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
-import be.alfapay.alfaplatform.mailingtool.domain.Mail;
+import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
+import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.util.FileParserUtil;
 import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
 import com.sendgrid.helpers.mail.objects.Email;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Service
 public class MailManager implements IMailManager {
     @Autowired
-    private MailRepository mailRepository;
+    private MailingRepository mailingRepository;
 
     @Autowired
     private MailSendToRepository mailSendToRepository;
@@ -25,34 +26,37 @@ public class MailManager implements IMailManager {
     @Autowired
     private MailSenderUtil mailSenderUtil;
 
-    public void uploadFileAndSendMail(MultipartFile file) {
+    @Override
+    public void processMailing(MultipartFile file) {
         try {
-            List<Mail> receivers = FileParserUtil.readDataOutOfFile(file.getInputStream());
-            for (Mail mail : receivers) {
+            List<MailSendTo> receivers = FileParserUtil.readDataOutOfFile(file.getInputStream());
+            Mailing mailing = new Mailing();
+            for (MailSendTo mail : receivers) {
                 Personalization personalization = new Personalization();
-                personalization.addTo(new Email(mail.getSendTo().getEmail()));
-                mail.setDate(LocalDate.now());
-                if (mail.getSendDate() == null) {
-                    mail.setSendDate(mail.getDate());
+                personalization.addTo(new Email(mail.getEmail()));
+                mail.getMailing().setDate(LocalDate.now());
+                if (mail.getMailing().getSendDate() == null) {
+                    mail.getMailing().setSendDate(mail.getMailing().getDate());
                 }
+                personalization.addSubstitution("{MESSAGE}", "Beste " + mail.getFirstName() + " " + mail.getLastName());
+                mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), mail.getMailing().getSubject(), mail.getMailing().getTemplate(), personalization, mail.getAttachments());
+                mailing = mail.getMailing();
+                mailSendToRepository.save(mail);
                 personalization.addCustomArg("mailing_id", mail.getId().toString());
-                personalization.addSubstitution("{MESSAGE}", "Beste " + mail.getSendTo().getFirstName() + " " + mail.getSendTo().getLastName());
-                mailSenderUtil.sendMail("info@gift2give.org", mail.getSendTo().getEmail(), mail.getSubject(), mail.getTemplate(), personalization, mail.getSendTo().getAttachments());
-                mailRepository.save(mail);
-                mailSendToRepository.save(mail.getSendTo());
             }
+            mailingRepository.save(mailing);
         } catch (IOException e) {
             throw new RuntimeException("Kan data uit CSV-bestand niet opslaan: " + e.getMessage());
         }
     }
 
     @Override
-    public List<Mail> getAllMailData() {
-        return mailRepository.findAll();
+    public List<Mailing> getAllMailings() {
+        return mailingRepository.findAll();
     }
 
     @Override
-    public Mail getMailDataById(UUID id) {
-        return mailRepository.findById(id).orElse(null);
+    public Mailing getMailingById(UUID id) {
+        return mailingRepository.findById(id).orElse(null);
     }
 }
