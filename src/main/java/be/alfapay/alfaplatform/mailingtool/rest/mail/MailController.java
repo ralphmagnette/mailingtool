@@ -1,5 +1,6 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
+import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
@@ -41,35 +42,57 @@ public class MailController {
         }
     }
 
-    @GetMapping("data")
+    @GetMapping("mailing/data")
     public ResponseEntity<List<Mailing>> getAllMailingData() {
         try {
-            List<Mailing> sendMailings = mailManager.getAllMailings();
-            if (sendMailings.isEmpty()) {
+            List<Mailing> mailings = mailManager.getAllMailings();
+            if (mailings.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
-            return ResponseEntity.status(HttpStatus.OK).body(sendMailings);
+            return ResponseEntity.status(HttpStatus.OK).body(mailings);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
     }
 
-    @GetMapping("data/{id}")
+    @GetMapping("mailing/data/{id}")
     public ResponseEntity<Mailing> getMailingDataById(@PathVariable UUID id) {
-        Mailing data = mailManager.getMailingById(id);
-        if (data == null) {
+        Mailing mailing = mailManager.getMailingById(id);
+        if (mailing == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return ResponseEntity.status(HttpStatus.FOUND).body(data);
+        return ResponseEntity.status(HttpStatus.FOUND).body(mailing);
+    }
+
+    @GetMapping("sendto/data")
+    public ResponseEntity<List<MailSendTo>> getAllMailSendTo() {
+        try {
+            List<MailSendTo> mails = mailManager.getAllMailsSendTo();
+            if (mails.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(mails);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+        }
+    }
+
+    @GetMapping("sendto/data/{id}")
+    public ResponseEntity<MailSendTo> getMailSendToById(@PathVariable Long id) {
+        MailSendTo mail = mailManager.getMailSendToById(id);
+        if (mail == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).body(mail);
     }
 
     @PostMapping(value = "report/events")
     public ResponseEntity<String> processInboundSendGridEmails(@RequestBody List<SendGridEvent> events) {
         try {
             sgEvents.addAll(events);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(null);
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
     }
 
@@ -77,11 +100,11 @@ public class MailController {
     public ResponseEntity<List<SendGridEvent>> sgEvents() {
         try {
             if (sgEvents.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
-            return new ResponseEntity<>(sgEvents, HttpStatus.OK);
+            return ResponseEntity.status(HttpStatus.OK).body(null);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.SERVICE_UNAVAILABLE);
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
     }
 }

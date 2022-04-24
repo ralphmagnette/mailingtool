@@ -59,4 +59,14 @@ public class MailManager implements IMailManager {
     public Mailing getMailingById(UUID id) {
         return mailingRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<MailSendTo> getAllMailsSendTo() {
+        return mailSendToRepository.findAll();
+    }
+
+    @Override
+    public MailSendTo getMailSendToById(Long id) {
+        return mailSendToRepository.findById(id).orElse(null);
+    }
 }

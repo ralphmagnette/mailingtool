@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 @Component
 public class FileParserUtil {
     private static final String TYPE = "text/csv";
-    private static final DateTimeFormatter FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public static boolean hasCSVFormat(MultipartFile file) {
         if (!TYPE.equals(file.getContentType())) {
@@ -41,7 +42,7 @@ public class FileParserUtil {
                 mailing.setTemplate(dataSplit[4]);
                 mailing.setArticleId(Integer.parseInt(dataSplit[5]));
                 row.setAmount(Integer.parseInt(dataSplit[6]));
-                mailing.setSendDate(LocalDate.parse(dataSplit[7], FORMAT));
+                mailing.setSendDate(LocalDate.parse(dataSplit[7], FORMATTER));
                 row.setMailing(mailing);
                 data.add(row);
             }
