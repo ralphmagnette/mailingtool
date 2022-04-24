@@ -1,24 +1,21 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "ap_mailing")
 public class Mail {
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    private UUID id;
+
     @Column(name = "article_id")
     private Integer articleId;
-
-    @Id
-    @Column(name = "mailing_id")
-    private UUID mailingId;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "mailing_id")
-    private MailSendTo sendTo;
 
     @Column(name = "user_id")
     private String userId;
@@ -51,28 +48,20 @@ public class Mail {
 
     }
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public Integer getArticleId() {
         return articleId;
     }
 
     public void setArticleId(Integer articleId) {
         this.articleId = articleId;
-    }
-
-    public UUID getMailingId() {
-        return mailingId;
-    }
-
-    public void setMailingId(UUID mailingId) {
-        this.mailingId = mailingId;
-    }
-
-    public MailSendTo getSendTo() {
-        return sendTo;
-    }
-
-    public void setSendTo(MailSendTo sendTo) {
-        this.sendTo = sendTo;
     }
 
     public String getUserId() {

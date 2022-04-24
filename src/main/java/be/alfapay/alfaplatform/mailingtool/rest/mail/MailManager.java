@@ -28,32 +28,19 @@ public class MailManager implements IMailManager {
     public void uploadFileAndSendMail(MultipartFile file) {
         try {
             List<Mail> receivers = FileParserUtil.readDataOutOfFile(file.getInputStream());
-
-            Mail mail = new Mail();
-            mail.setMailingId(UUID.randomUUID());
-            for (Mail data : receivers) {
+            for (Mail mail : receivers) {
                 Personalization personalization = new Personalization();
-                personalization.addTo(new Email(data.getSendTo().getEmail()));
-                data.setMailingId(mail.getMailingId());
-                data.getSendTo().setMailingId(mail.getMailingId());
-                data.setDate(LocalDate.now());
-                if (data.getSendDate() == null) {
-                    data.setSendDate(data.getDate());
+                personalization.addTo(new Email(mail.getSendTo().getEmail()));
+                mail.setDate(LocalDate.now());
+                if (mail.getSendDate() == null) {
+                    mail.setSendDate(mail.getDate());
                 }
-                personalization.addCustomArg("mailing_id", mail.getMailingId().toString());
-                personalization.addSubstitution("{MESSAGE}", "Beste " + data.getSendTo().getFirstName() + " " + data.getSendTo().getLastName());
-                mail.setArticleId(data.getArticleId());
-                mail.setSendTo(data.getSendTo());
-                mail.setUserId(data.getUserId());
-                mail.setSubject(data.getSubject());
-                mail.setCsv(data.getCsv());
-                mail.setTemplate(data.getTemplate());
-                mail.setDate(data.getDate());
-                mail.setSendDate(data.getSendDate());
+                personalization.addCustomArg("mailing_id", mail.getId().toString());
+                personalization.addSubstitution("{MESSAGE}", "Beste " + mail.getSendTo().getFirstName() + " " + mail.getSendTo().getLastName());
                 mailSenderUtil.sendMail("info@gift2give.org", mail.getSendTo().getEmail(), mail.getSubject(), mail.getTemplate(), personalization, mail.getSendTo().getAttachments());
+                mailRepository.save(mail);
                 mailSendToRepository.save(mail.getSendTo());
             }
-            mailRepository.save(mail);
         } catch (IOException e) {
             throw new RuntimeException("Kan data uit CSV-bestand niet opslaan: " + e.getMessage());
         }

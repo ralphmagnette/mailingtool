@@ -35,13 +35,10 @@ public class MailSenderUtil {
         }
         boolean mailSent = true;
         Email from = new Email(fromString);
+        Path htmlTemplate = Path.of(template);
         Content content = new Content();
-        if (template != null) {
-            Path htmlTemplate = Path.of(template);
-            content = new Content();
-            content.setType("text/html");
-            content.setValue(getContentFromHtmlTemplate(htmlTemplate));
-        }
+        content.setType("text/html");
+        content.setValue(getContentFromHtmlTemplate(htmlTemplate));
 
         Mail mail = new Mail();
         mail.setFrom(from);

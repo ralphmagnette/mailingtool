@@ -13,9 +13,6 @@ public class MailSendTo {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "mailing_id")
-    private UUID mailingId;
-
     @Column(name = "email")
     private String email;
 
@@ -30,6 +27,13 @@ public class MailSendTo {
 
     @Column(name = "giftcard")
     private String giftCard;
+
+    @Column(name = "mailing_id")
+    private UUID mailingId;
+
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinColumn(name = "mailing_id")
+    private Mail mail;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "attachment_id")
@@ -52,17 +56,7 @@ public class MailSendTo {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public UUID getMailingId() {
-        return mailingId;
-    }
-
-    public void setMailingId(UUID mailingId) {
-        this.mailingId = mailingId;
-    }
+    public void setId(Long id) { this.id = id; }
 
     public String getEmail() {
         return email;
@@ -102,6 +96,22 @@ public class MailSendTo {
 
     public void setGiftCard(String giftCard) {
         this.giftCard = giftCard;
+    }
+
+    public UUID getMailingId() {
+        return mailingId;
+    }
+
+    public void setMailingId(UUID mailingId) {
+        this.mailingId = mailingId;
+    }
+
+    public Mail getMail() {
+        return mail;
+    }
+
+    public void setMail(Mail mail) {
+        this.mail = mail;
     }
 
     public List<Attachment> getAttachments() {
