@@ -39,10 +39,11 @@ public class FileParserUtil {
                 row.setLastName(dataSplit[1]);
                 row.setEmail(dataSplit[2]);
                 mailing.setSubject(dataSplit[3]);
-                mailing.setTemplate(dataSplit[4]);
-                mailing.setArticleId(Integer.parseInt(dataSplit[5]));
-                row.setAmount(Integer.parseInt(dataSplit[6]));
-                mailing.setSendDate(LocalDate.parse(dataSplit[7], FORMATTER));
+                mailing.setCsv(dataSplit[4]);
+                mailing.setTemplate(dataSplit[5]);
+                mailing.setArticleId(Integer.parseInt(dataSplit[6]));
+                row.setAmount(Integer.parseInt(dataSplit[7]));
+                mailing.setSendDate(LocalDate.parse(dataSplit[8], FORMATTER));
                 row.setMailing(mailing);
                 data.add(row);
             }

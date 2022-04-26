@@ -31,18 +31,21 @@ public class MailManager implements IMailManager {
         try {
             List<MailSendTo> receivers = FileParserUtil.readDataOutOfFile(file.getInputStream());
             Mailing mailing = new Mailing();
+            mailing.setId(UUID.randomUUID());
             for (MailSendTo mail : receivers) {
                 Personalization personalization = new Personalization();
                 personalization.addTo(new Email(mail.getEmail()));
+                mail.setMailingId(mailing.getId());
+                mail.getMailing().setId(mailing.getId());
                 mail.getMailing().setDate(LocalDate.now());
                 if (mail.getMailing().getSendDate() == null) {
                     mail.getMailing().setSendDate(mail.getMailing().getDate());
                 }
                 personalization.addSubstitution("{MESSAGE}", "Beste " + mail.getFirstName() + " " + mail.getLastName());
+                personalization.addCustomArg("mailing_id", mail.getMailingId().toString());
                 mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), mail.getMailing().getSubject(), mail.getMailing().getTemplate(), personalization, mail.getAttachments());
                 mailing = mail.getMailing();
                 mailSendToRepository.save(mail);
-                personalization.addCustomArg("mailing_id", mail.getId().toString());
             }
             mailingRepository.save(mailing);
         } catch (IOException e) {
@@ -61,6 +64,24 @@ public class MailManager implements IMailManager {
     }
 
     @Override
+    public void setOpenedForMailing(Mailing mailing) {
+        mailing.setOpen(mailing.getOpen() + 1);
+        mailingRepository.save(mailing);
+    }
+
+    @Override
+    public void setClickedLinkInMailing(Mailing mailing) {
+        mailing.setClick(mailing.getClick() + 1);
+        mailingRepository.save(mailing);
+    }
+
+    @Override
+    public void setDroppedForMailing(Mailing mailing) {
+        mailing.setDropped(mailing.getDropped() + 1);
+        mailingRepository.save(mailing);
+    }
+
+    @Override
     public List<MailSendTo> getAllMailsSendTo() {
         return mailSendToRepository.findAll();
     }
@@ -68,5 +89,28 @@ public class MailManager implements IMailManager {
     @Override
     public MailSendTo getMailSendToById(Long id) {
         return mailSendToRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public MailSendTo getMailSendToByMailingIdAndEmail(UUID mailingId, String email) {
+        return mailSendToRepository.getMailSendToByMailingIdAndEmail(mailingId, email);
+    }
+
+    @Override
+    public void setOpenedForMail(MailSendTo mail) {
+        mail.setOpen(mail.getOpen() + 1);
+        mailSendToRepository.save(mail);
+    }
+
+    @Override
+    public void setClickedLinkInMail(MailSendTo mail) {
+        mail.setClick(mail.getClick() + 1);
+        mailSendToRepository.save(mail);
+    }
+
+    @Override
+    public void setDroppedForMail(MailSendTo mail) {
+        mail.setDropped(mail.getDropped() + 1);
+        mailSendToRepository.save(mail);
     }
 }

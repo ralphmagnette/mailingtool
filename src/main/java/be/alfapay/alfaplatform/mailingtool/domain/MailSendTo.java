@@ -48,8 +48,8 @@ public class MailSendTo {
     @Column(name = "click")
     private int click;
 
-    @Column(name = "bounced")
-    private int bounced;
+    @Column(name = "dropped")
+    private int dropped;
 
     public MailSendTo() {
 
@@ -141,11 +141,11 @@ public class MailSendTo {
         this.click = click;
     }
 
-    public int getBounced() {
-        return bounced;
+    public int getDropped() {
+        return dropped;
     }
 
-    public void setBounced(int bounced) {
-        this.bounced = bounced;
+    public void setDropped(int dropped) {
+        this.dropped = dropped;
     }
 }

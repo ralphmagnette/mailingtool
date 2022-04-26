@@ -9,8 +9,17 @@ import java.util.UUID;
 
 public interface IMailManager {
     void processMailing(MultipartFile file);
+
     List<Mailing> getAllMailings();
     Mailing getMailingById(UUID id);
+    void setOpenedForMailing(Mailing mailing);
+    void setClickedLinkInMailing(Mailing mailing);
+    void setDroppedForMailing(Mailing mailing);
+
     List<MailSendTo> getAllMailsSendTo();
     MailSendTo getMailSendToById(Long id);
+    MailSendTo getMailSendToByMailingIdAndEmail(UUID mailingId, String email);
+    void setOpenedForMail(MailSendTo mail);
+    void setClickedLinkInMail(MailSendTo mail);
+    void setDroppedForMail(MailSendTo mail);
 }

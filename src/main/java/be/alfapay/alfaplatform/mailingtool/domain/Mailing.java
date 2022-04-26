@@ -1,9 +1,11 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -11,8 +13,6 @@ import java.util.UUID;
 @Table(name = "ap_mailing")
 public class Mailing {
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Type(type="org.hibernate.type.UUIDCharType")
     private UUID id;
 
@@ -43,8 +43,8 @@ public class Mailing {
     @Column(name = "click")
     private int click;
 
-    @Column(name = "bounced")
-    private int bounced;
+    @Column(name = "dropped")
+    private int dropped;
 
     public Mailing() {
 
@@ -81,7 +81,6 @@ public class Mailing {
     public void setSubject(String subject) {
         this.subject = subject;
     }
-
 
     public String getCsv() {
         return csv;
@@ -131,11 +130,11 @@ public class Mailing {
         this.click = click;
     }
 
-    public int getBounced() {
-        return bounced;
+    public int getDropped() {
+        return dropped;
     }
 
-    public void setBounced(int bounced) {
-        this.bounced = bounced;
+    public void setDropped(int dropped) {
+        this.dropped = dropped;
     }
 }
