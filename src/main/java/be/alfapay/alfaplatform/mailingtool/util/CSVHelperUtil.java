@@ -30,6 +30,7 @@ public class CSVHelperUtil {
         List<MailSendTo> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
+            String headerLine = reader.readLine();
             Mailing mailing = new Mailing();
             while ((line = reader.readLine()) != null) {
                 MailSendTo row = new MailSendTo();
@@ -56,7 +57,7 @@ public class CSVHelperUtil {
         final CSVFormat format = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';');
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
-            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Achternaam", "Bedrag", "Bon", "Mail geopend", "Link in mail geklikt", "Niet afgeleverd");
+            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Naam", "Bedrag", "Bon", "Mail geopend", "Link in mail geklikt", "Niet afgeleverd");
             for (MailSendTo mail : mails) {
                 List<? extends Serializable> data = Arrays.asList(
                         String.valueOf(mail.getId()),
