@@ -2,7 +2,7 @@ package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
-import be.alfapay.alfaplatform.mailingtool.util.FileParserUtil;
+import be.alfapay.alfaplatform.mailingtool.util.CSVHelperUtil;
 import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
@@ -29,7 +30,7 @@ public class MailManager implements IMailManager {
     @Override
     public void processMailing(MultipartFile file) {
         try {
-            List<MailSendTo> receivers = FileParserUtil.readDataOutOfFile(file.getInputStream());
+            List<MailSendTo> receivers = CSVHelperUtil.readDataOutOfFile(file.getInputStream());
             Mailing mailing = new Mailing();
             mailing.setId(UUID.randomUUID());
             for (MailSendTo mail : receivers) {
@@ -84,6 +85,12 @@ public class MailManager implements IMailManager {
     @Override
     public List<MailSendTo> getAllMailsSendTo() {
         return mailSendToRepository.findAll();
+    }
+
+    @Override
+    public ByteArrayInputStream getAllMailsSendToAndExportCSV() throws IOException {
+        List<MailSendTo> mails = mailSendToRepository.findAll();
+        return CSVHelperUtil.createCSVFile(mails);
     }
 
     @Override

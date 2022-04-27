@@ -4,6 +4,8 @@ import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ public interface IMailManager {
     void setDroppedForMailing(Mailing mailing);
 
     List<MailSendTo> getAllMailsSendTo();
+    ByteArrayInputStream getAllMailsSendToAndExportCSV() throws IOException;
     MailSendTo getMailSendToById(Long id);
     MailSendTo getMailSendToByMailingIdAndEmail(UUID mailingId, String email);
     void setOpenedForMail(MailSendTo mail);

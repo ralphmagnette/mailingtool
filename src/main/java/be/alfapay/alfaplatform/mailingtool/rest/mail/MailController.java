@@ -4,13 +4,19 @@ import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
-import be.alfapay.alfaplatform.mailingtool.util.FileParserUtil;
+import be.alfapay.alfaplatform.mailingtool.util.CSVHelperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.sql.init.dependency.AbstractBeansOfTypeDatabaseInitializerDetector;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,7 +34,7 @@ public class MailController {
     @PostMapping("send")
     public ResponseEntity<ResponseMessage> processMailing(@RequestParam("file") MultipartFile file) {
         String message = "";
-        if (!FileParserUtil.hasCSVFormat(file)) {
+        if (!CSVHelperUtil.hasCSVFormat(file)) {
             message = "Upload een csv file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
@@ -73,6 +79,20 @@ public class MailController {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
             return ResponseEntity.status(HttpStatus.OK).body(mails);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
+        }
+    }
+
+    @GetMapping("sendto/data/csv")
+    public ResponseEntity<Resource> getAllMailsSendToAndExportCSV() {
+        try {
+            String filename = "mailssendto.csv";
+            InputStreamResource file = new InputStreamResource(mailManager.getAllMailsSendToAndExportCSV());
+            return ResponseEntity.status(HttpStatus.OK)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                    .contentType(MediaType.parseMediaType("application/csv"))
+                    .body(file);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }

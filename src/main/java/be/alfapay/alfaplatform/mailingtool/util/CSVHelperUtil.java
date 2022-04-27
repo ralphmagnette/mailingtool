@@ -2,21 +2,20 @@ package be.alfapay.alfaplatform.mailingtool.util;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class FileParserUtil {
+public class CSVHelperUtil {
     private static final String TYPE = "text/csv";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -49,7 +48,34 @@ public class FileParserUtil {
             }
             return data;
         } catch (IOException e) {
-            throw new RuntimeException("Fail to parse csv file: " + e.getMessage());
+            throw new RuntimeException("Kan CSV-bestand niet omzetten: " + e.getMessage());
+        }
+    }
+
+    public static ByteArrayInputStream createCSVFile(List<MailSendTo> mails) {
+        final CSVFormat format = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';');
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
+            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Achternaam", "Bedrag", "Bon", "Mail geopend", "Link in mail geklikt", "Niet afgeleverd");
+            for (MailSendTo mail : mails) {
+                List<? extends Serializable> data = Arrays.asList(
+                        String.valueOf(mail.getId()),
+                        mail.getMailingId(),
+                        mail.getEmail(),
+                        mail.getFirstName(),
+                        mail.getLastName(),
+                        String.valueOf(mail.getAmount()),
+                        mail.getGiftCard(),
+                        String.valueOf(mail.getOpen()),
+                        String.valueOf(mail.getClick()),
+                        String.valueOf(mail.getDropped())
+                );
+                csvPrinter.printRecord(data);
+            }
+            csvPrinter.flush();
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("Kan data niet importeren naar CSV-bestand: " + e.getMessage());
         }
     }
 }
