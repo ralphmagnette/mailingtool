@@ -1,7 +1,6 @@
 package be.alfapay.alfaplatform.mailingtool.util;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
-import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
@@ -13,10 +12,7 @@ import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Base64;
 import java.util.List;
 

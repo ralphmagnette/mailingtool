@@ -6,9 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 public interface IMailManager {
     void processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String sendDate);
