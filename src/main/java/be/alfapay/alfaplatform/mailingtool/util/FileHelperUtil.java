@@ -71,7 +71,7 @@ public class FileHelperUtil {
         final CSVFormat format = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';');
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
-            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Achternaam", "Bedrag", "Bon", "Mail geopend", "Link in mail geklikt", "Niet afgeleverd");
+            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Naam", "Bedrag", "Bon", "Mail geopend", "Link in mail geklikt", "Niet afgeleverd");
             for (MailSendTo mail : mails) {
                 List<? extends Serializable> data = Arrays.asList(
                         String.valueOf(mail.getId()),
