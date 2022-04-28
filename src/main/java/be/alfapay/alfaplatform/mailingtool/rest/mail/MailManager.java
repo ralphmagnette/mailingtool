@@ -2,7 +2,7 @@ package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
-import be.alfapay.alfaplatform.mailingtool.util.CSVHelperUtil;
+import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
 import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Personalization;
@@ -28,23 +28,25 @@ public class MailManager implements IMailManager {
     private MailSenderUtil mailSenderUtil;
 
     @Override
-    public void processMailing(MultipartFile file) {
+    public void processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String sendDate) {
         try {
-            List<MailSendTo> receivers = CSVHelperUtil.readDataOutOfFile(file.getInputStream());
+            List<MailSendTo> receivers = FileHelperUtil.readDataOutOfFile(csv.getInputStream());
+            String htmlTemplate = FileHelperUtil.getContentFromHtmlTemplate(template.getInputStream());
             Mailing mailing = new Mailing();
-            mailing.setId(UUID.randomUUID());
+            mailing.setId(UUID.randomUUID().toString());
             for (MailSendTo mail : receivers) {
                 Personalization personalization = new Personalization();
                 personalization.addTo(new Email(mail.getEmail()));
                 mail.setMailingId(mailing.getId());
                 mail.getMailing().setId(mailing.getId());
-                mail.getMailing().setDate(LocalDate.now());
+                mail.getMailing().setArticleId(articleId);
+                mail.getMailing().setDate(LocalDate.now().toString());
                 if (mail.getMailing().getSendDate() == null) {
                     mail.getMailing().setSendDate(mail.getMailing().getDate());
                 }
                 personalization.addSubstitution("{MESSAGE}", "Beste " + mail.getFirstName() + " " + mail.getLastName());
-                personalization.addCustomArg("mailing_id", mail.getMailingId().toString());
-                mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), mail.getMailing().getSubject(), mail.getMailing().getTemplate(), personalization, mail.getAttachments());
+                personalization.addCustomArg("mailing_id", mail.getMailingId());
+                mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), mail.getMailing().getSubject(), htmlTemplate, personalization, mail.getAttachments());
                 mailing = mail.getMailing();
                 mailSendToRepository.save(mail);
             }
@@ -60,7 +62,7 @@ public class MailManager implements IMailManager {
     }
 
     @Override
-    public Mailing getMailingById(UUID id) {
+    public Mailing getMailingById(String id) {
         return mailingRepository.findById(id).orElse(null);
     }
 
@@ -90,7 +92,7 @@ public class MailManager implements IMailManager {
     @Override
     public ByteArrayInputStream getAllMailsSendToAndExportCSV() throws IOException {
         List<MailSendTo> mails = mailSendToRepository.findAll();
-        return CSVHelperUtil.createCSVFile(mails);
+        return FileHelperUtil.createCSVFile(mails);
     }
 
     @Override
@@ -99,7 +101,7 @@ public class MailManager implements IMailManager {
     }
 
     @Override
-    public MailSendTo getMailSendToByMailingIdAndEmail(UUID mailingId, String email) {
+    public MailSendTo getMailSendToByMailingIdAndEmail(String mailingId, String email) {
         return mailSendToRepository.getMailSendToByMailingIdAndEmail(mailingId, email);
     }
 

@@ -9,8 +9,7 @@ public class SendGridEvent {
     @JsonProperty("email")
     private String email;
     @JsonProperty("mailing_id")
-    @Type(type="org.hibernate.type.UUIDCharType")
-    private UUID mailingId;
+    private String mailingId;
     @JsonProperty("event")
     private String eventType;
     @JsonProperty("sg_message_id")
@@ -30,11 +29,11 @@ public class SendGridEvent {
         this.email = email;
     }
 
-    public UUID getMailingId() {
+    public String getMailingId() {
         return mailingId;
     }
 
-    public void setMailingId(UUID mailingId) {
+    public void setMailingId(String mailingId) {
         this.mailingId = mailingId;
     }
 

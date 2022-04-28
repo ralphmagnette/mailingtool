@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface MailingRepository extends JpaRepository<Mailing, UUID> {
+public interface MailingRepository extends JpaRepository<Mailing, String> {
 
 }

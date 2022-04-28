@@ -35,10 +35,9 @@ public class MailSenderUtil {
         }
         boolean mailSent = true;
         Email from = new Email(fromString);
-        Path htmlTemplate = Path.of(template);
         Content content = new Content();
         content.setType("text/html");
-        content.setValue(getContentFromHtmlTemplate(htmlTemplate));
+        content.setValue(template);
 
         Mail mail = new Mail();
         mail.setFrom(from);
@@ -72,18 +71,5 @@ public class MailSenderUtil {
             System.out.println(ioe.getMessage());
         }
         return mailSent;
-    }
-
-    private String getContentFromHtmlTemplate(Path htmlTemplate) {
-        try (BufferedReader reader = Files.newBufferedReader(htmlTemplate)) {
-            String line;
-            StringBuilder template = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                template.append(line);
-            }
-            return template.toString();
-        } catch (IOException e) {
-            throw new RuntimeException("Fail to parse csv file: " + e.getMessage());
-        }
     }
 }

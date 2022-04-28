@@ -4,9 +4,8 @@ import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
-import be.alfapay.alfaplatform.mailingtool.util.CSVHelperUtil;
+import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.sql.init.dependency.AbstractBeansOfTypeDatabaseInitializerDetector;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -16,36 +15,38 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.time.LocalDate;
+import java.util.List;
 
 @CrossOrigin(origins="*", allowedHeaders="*")
 @RestController
 @RequestMapping("/alfaplatform-giftcard-next/mail/")
 public class MailController {
-    private final Map<String, Set<String>> openedEmails = new ConcurrentHashMap<>();
-    private final Map<String, Set<String>> clickedLinksInEmails = new ConcurrentHashMap<>();
-    private final Map<String, Set<String>> droppedEmails = new ConcurrentHashMap<>();
-
     @Autowired
     private MailManager mailManager;
 
     @PostMapping("send")
-    public ResponseEntity<ResponseMessage> processMailing(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ResponseMessage> processMailing(@RequestParam("csv") MultipartFile csv,
+                                                          @RequestParam("template") MultipartFile template,
+                                                          @RequestParam("articleId") Integer articleId,
+                                                          @RequestParam("sendDate")String sendDate) {
         String message = "";
-        if (!CSVHelperUtil.hasCSVFormat(file)) {
+        if (!FileHelperUtil.hasCSVFormat(csv)) {
             message = "Upload een csv file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
 
+        if (!FileHelperUtil.hasHTMLFormat(template)) {
+            message = "Upload een html file!";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+        }
+
         try {
-            mailManager.processMailing(file);
-            message = "File: " + file.getOriginalFilename() + " is geupload en mail is verzonden.";
+            mailManager.processMailing(csv, template, articleId, sendDate);
+            message = "Mail is verzonden.";
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
-            message = "Kan de file: " + file.getOriginalFilename() + " niet uploaden!";
-            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
         }
     }
 
@@ -63,7 +64,7 @@ public class MailController {
     }
 
     @GetMapping("mailing/data/{id}")
-    public ResponseEntity<Mailing> getMailingDataById(@PathVariable UUID id) {
+    public ResponseEntity<Mailing> getMailingDataById(@PathVariable String id) {
         Mailing mailing = mailManager.getMailingById(id);
         if (mailing == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -110,71 +111,46 @@ public class MailController {
     @PostMapping(value = "report/events")
     public ResponseEntity<ResponseMessage> processInboundSendGridEmails(@RequestBody List<SendGridEvent> events) {
         try {
-            String message = "";
             MailSendTo mail;
             for (SendGridEvent event : events) {
                 if (event.getMailingId() != null) {
                     switch (event.getEventType()) {
                         case "open":
-                            openedEmails.computeIfAbsent(event.getMailingId().toString(), e -> new HashSet<>()).add(event.getEmail());
                             mail = mailManager.getMailSendToByMailingIdAndEmail(event.getMailingId(), event.getEmail());
-                            if (openedEmails.containsKey(mail.getMailingId().toString())) {
-                                mailManager.setOpenedForMail(mail);
-                                if (mail.getOpen() == 1) {
-                                    mailManager.setOpenedForMailing(mail.getMailing());
-                                }
+                            if (mail == null) {
+                                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                            }
+                            mailManager.setOpenedForMail(mail);
+                            if (mail.getOpen() == 1) {
+                                mailManager.setOpenedForMailing(mail.getMailing());
                             }
                             break;
                         case "click":
-                            clickedLinksInEmails.computeIfAbsent(event.getMailingId().toString(),e -> new HashSet<>()).add(event.getEmail());
                             mail = mailManager.getMailSendToByMailingIdAndEmail(event.getMailingId(), event.getEmail());
-                            if (clickedLinksInEmails.containsKey(mail.getMailingId().toString())) {
-                                mailManager.setClickedLinkInMail(mail);
-                                if (mail.getClick() == 1) {
-                                    mailManager.setClickedLinkInMailing(mail.getMailing());
-                                }
+                            if (mail == null) {
+                                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                            }
+                            mailManager.setClickedLinkInMail(mail);
+                            if (mail.getClick() == 1) {
+                                mailManager.setClickedLinkInMailing(mail.getMailing());
                             }
                             break;
                         case "dropped":
-                            droppedEmails.computeIfAbsent(event.getMailingId().toString(), e -> new HashSet<>()).add(event.getEmail());
                             mail = mailManager.getMailSendToByMailingIdAndEmail(event.getMailingId(), event.getEmail());
-                            if (droppedEmails.containsKey(mail.getMailingId().toString())) {
-                                mailManager.setDroppedForMail(mail);
-                                if (mail.getDropped() == 1) {
-                                    mailManager.setDroppedForMailing(mail.getMailing());
-                                }
+                            if (mail == null) {
+                                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                            }
+                            mailManager.setDroppedForMail(mail);
+                            if (mail.getDropped() == 1) {
+                                mailManager.setDroppedForMailing(mail.getMailing());
                             }
                             break;
                     }
                 }
             }
-            return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+            return ResponseEntity.status(HttpStatus.OK).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
-    }
-
-    @GetMapping("report/events/opened")
-    public ResponseEntity<Map<String, Set<String>>> openedEmails() {
-        if (openedEmails.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(openedEmails);
-    }
-
-    @GetMapping("report/events/clicked")
-    public ResponseEntity<Map<String, Set<String>>> clickedLinksInEmails() {
-        if (clickedLinksInEmails.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(clickedLinksInEmails);
-    }
-
-    @GetMapping("report/events/dropped")
-    public ResponseEntity<Map<String, Set<String>>> droppedEmails() {
-        if (droppedEmails.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(droppedEmails);
     }
 }

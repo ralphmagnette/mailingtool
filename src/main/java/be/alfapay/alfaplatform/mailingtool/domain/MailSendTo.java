@@ -1,11 +1,8 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "ap_mailing_sendto")
@@ -31,8 +28,7 @@ public class MailSendTo {
     private String giftCard;
 
     @Column(name = "mailing_id", updatable = false, insertable = false)
-    @Type(type="org.hibernate.type.UUIDCharType")
-    private UUID mailingId;
+    private String mailingId;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "mailing_id")
@@ -101,11 +97,11 @@ public class MailSendTo {
         this.giftCard = giftCard;
     }
 
-    public UUID getMailingId() {
+    public String getMailingId() {
         return mailingId;
     }
 
-    public void setMailingId(UUID mailingId) {
+    public void setMailingId(String mailingId) {
         this.mailingId = mailingId;
     }
 

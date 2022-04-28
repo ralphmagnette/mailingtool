@@ -8,19 +8,24 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class CSVHelperUtil {
-    private static final String TYPE = "text/csv";
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+public class FileHelperUtil {
+    private static final String TYPE_CSV = "text/csv";
+    private static final String TYPE_HTML = "text/html";
 
-    public static boolean hasCSVFormat(MultipartFile file) {
-        if (!TYPE.equals(file.getContentType())) {
+    public static boolean hasCSVFormat(MultipartFile csv) {
+        if (!TYPE_CSV.equals(csv.getContentType())) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean hasHTMLFormat(MultipartFile template) {
+        if (!TYPE_HTML.equals(template.getContentType())) {
             return false;
         }
         return true;
@@ -30,6 +35,7 @@ public class CSVHelperUtil {
         List<MailSendTo> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
+            String headerLine = reader.readLine();
             Mailing mailing = new Mailing();
             while ((line = reader.readLine()) != null) {
                 MailSendTo row = new MailSendTo();
@@ -38,17 +44,26 @@ public class CSVHelperUtil {
                 row.setLastName(dataSplit[1]);
                 row.setEmail(dataSplit[2]);
                 mailing.setSubject(dataSplit[3]);
-                mailing.setCsv(dataSplit[4]);
-                mailing.setTemplate(dataSplit[5]);
-                mailing.setArticleId(Integer.parseInt(dataSplit[6]));
-                row.setAmount(Integer.parseInt(dataSplit[7]));
-                mailing.setSendDate(LocalDate.parse(dataSplit[8], FORMATTER));
+                row.setAmount(Integer.parseInt(dataSplit[4]));
                 row.setMailing(mailing);
                 data.add(row);
             }
             return data;
         } catch (IOException e) {
-            throw new RuntimeException("Kan CSV-bestand niet omzetten: " + e.getMessage());
+            throw new RuntimeException("Kan CSV niet uitlezen: " + e.getMessage());
+        }
+    }
+
+    public static String getContentFromHtmlTemplate(InputStream is) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+            String line;
+            StringBuilder template = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                template.append(line);
+            }
+            return template.toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Kan template niet uitlezen: " + e.getMessage());
         }
     }
 

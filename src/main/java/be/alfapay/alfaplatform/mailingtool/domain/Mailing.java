@@ -1,7 +1,5 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import org.hibernate.annotations.Type;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,8 +11,7 @@ import java.util.UUID;
 @Table(name = "ap_mailing")
 public class Mailing {
     @Id
-    @Type(type="org.hibernate.type.UUIDCharType")
-    private UUID id;
+    private String id;
 
     @Column(name = "article_id", nullable = false)
     private Integer articleId;
@@ -32,10 +29,10 @@ public class Mailing {
     private String template;
 
     @Column(name = "date")
-    private LocalDate date;
+    private String date;
 
     @Column(name = "send_date")
-    private LocalDate sendDate;
+    private String sendDate;
 
     @Column(name = "open")
     private int open;
@@ -50,11 +47,11 @@ public class Mailing {
 
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -98,19 +95,19 @@ public class Mailing {
         this.template = template;
     }
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public LocalDate getSendDate() {
+    public String getSendDate() {
         return sendDate;
     }
 
-    public void setSendDate(LocalDate sendDate) {
+    public void setSendDate(String sendDate) {
         this.sendDate = sendDate;
     }
 

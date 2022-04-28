@@ -8,5 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface MailSendToRepository extends JpaRepository<MailSendTo, Long> {
-    MailSendTo getMailSendToByMailingIdAndEmail(UUID mailingId, String email);
+    MailSendTo getMailSendToByMailingIdAndEmail(String mailingId, String email);
 }
