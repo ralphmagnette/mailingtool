@@ -28,7 +28,7 @@ public class MailManager implements IMailManager {
     private MailSenderUtil mailSenderUtil;
 
     @Override
-    public void processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String sendDate) {
+    public void processMailing(MultipartFile csv, MultipartFile template, String subject, Integer articleId, String sendDate) {
         try {
             List<MailSendTo> receivers = FileHelperUtil.readDataOutOfFile(csv.getInputStream());
             String htmlTemplate = FileHelperUtil.getContentFromHtmlTemplate(template.getInputStream());
@@ -39,6 +39,7 @@ public class MailManager implements IMailManager {
                 personalization.addTo(new Email(mail.getEmail()));
                 mail.setMailingId(mailing.getId());
                 mail.getMailing().setId(mailing.getId());
+                mail.getMailing().setSubject(subject);
                 mail.getMailing().setArticleId(articleId);
                 mail.getMailing().setDate(LocalDate.now().toString());
                 if (mail.getMailing().getSendDate() == null) {

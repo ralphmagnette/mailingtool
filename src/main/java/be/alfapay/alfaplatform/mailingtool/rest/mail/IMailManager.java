@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IMailManager {
-    void processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String sendDate);
+    void processMailing(MultipartFile csv, MultipartFile template, String subject, Integer articleId, String sendDate);
 
     List<Mailing> getAllMailings();
     Mailing getMailingById(String id);
