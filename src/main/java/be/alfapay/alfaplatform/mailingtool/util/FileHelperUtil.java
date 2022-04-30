@@ -43,8 +43,7 @@ public class FileHelperUtil {
                 row.setFirstName(dataSplit[0]);
                 row.setLastName(dataSplit[1]);
                 row.setEmail(dataSplit[2]);
-                mailing.setSubject(dataSplit[3]);
-                row.setAmount(Integer.parseInt(dataSplit[4]));
+                row.setAmount(Integer.parseInt(dataSplit[3]));
                 row.setMailing(mailing);
                 data.add(row);
             }

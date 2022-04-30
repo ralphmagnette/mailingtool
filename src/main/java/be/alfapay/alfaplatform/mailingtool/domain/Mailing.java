@@ -11,7 +11,7 @@ public class Mailing {
     @Id
     private String id;
 
-    @Column(name = "article_id", nullable = false)
+    @Column(name = "article_id")
     private Integer articleId;
 
     @Column(name = "user_id")

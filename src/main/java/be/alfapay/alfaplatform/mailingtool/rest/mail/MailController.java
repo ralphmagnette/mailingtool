@@ -27,8 +27,8 @@ public class MailController {
     @PostMapping("send")
     public ResponseEntity<ResponseMessage> processMailing(@RequestParam("csv") MultipartFile csv,
                                                           @RequestParam("template") MultipartFile template,
-                                                          @RequestParam("subject") String subject,
                                                           @RequestParam("articleId") Integer articleId,
+                                                          @RequestParam("subject") String subject,
                                                           @RequestParam("sendDate")String sendDate) {
         String message = "";
         if (!FileHelperUtil.hasCSVFormat(csv)) {
@@ -42,7 +42,7 @@ public class MailController {
         }
 
         try {
-            mailManager.processMailing(csv, template, subject, articleId, sendDate);
+            mailManager.processMailing(csv, template, articleId, subject, sendDate);
             message = "Mail is verzonden.";
             return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
         } catch (Exception e) {
