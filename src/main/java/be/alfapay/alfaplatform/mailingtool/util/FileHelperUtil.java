@@ -16,22 +16,28 @@ import java.util.List;
 public class FileHelperUtil {
     private static final String TYPE_CSV = "text/csv";
     private static final String TYPE_HTML = "text/html";
+    private static final String LOCAL_PATH = "C:\\Users\\ralph\\OneDrive\\Documents\\Gift2Give\\";
+    private static final String ASSETS_PATH = "assets\\";
 
-    public static boolean hasCSVFormat(MultipartFile csv) {
+    public boolean hasCSVFormat(MultipartFile csv) {
         if (!TYPE_CSV.equals(csv.getContentType())) {
             return false;
         }
         return true;
     }
 
-    public static boolean hasHTMLFormat(MultipartFile template) {
+    public boolean hasHTMLFormat(MultipartFile template) {
         if (!TYPE_HTML.equals(template.getContentType())) {
             return false;
         }
         return true;
     }
 
-    public static List<MailSendTo> readDataOutOfFile(InputStream is) {
+    public String getFilePath(String fileName) {
+        return LOCAL_PATH + ASSETS_PATH + fileName;
+    }
+
+    public List<MailSendTo> readDataOutOfFile(InputStream is) {
         List<MailSendTo> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
@@ -53,7 +59,7 @@ public class FileHelperUtil {
         }
     }
 
-    public static String getContentFromHtmlTemplate(InputStream is) {
+    public String getContentFromHtmlTemplate(InputStream is) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
             StringBuilder template = new StringBuilder();
@@ -66,11 +72,11 @@ public class FileHelperUtil {
         }
     }
 
-    public static ByteArrayInputStream createCSVFile(List<MailSendTo> mails) {
+    public ByteArrayInputStream createCSVFile(List<MailSendTo> mails) {
         final CSVFormat format = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';');
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
-            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Naam", "Bedrag", "Bon", "Mail geopend", "Link in mail geklikt", "Niet afgeleverd");
+            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Naam", "Bedrag", "Bon", "Geopend", "Geklikt op link", "Niet afgeleverd");
             for (MailSendTo mail : mails) {
                 List<? extends Serializable> data = Arrays.asList(
                         String.valueOf(mail.getId()),

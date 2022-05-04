@@ -24,6 +24,9 @@ public class MailController {
     @Autowired
     private MailManager mailManager;
 
+    @Autowired
+    private FileHelperUtil fileHelperUtil;
+
     @PostMapping("send")
     public ResponseEntity<ResponseMessage> processMailing(@RequestParam("csv") MultipartFile csv,
                                                           @RequestParam("template") MultipartFile template,
@@ -31,12 +34,12 @@ public class MailController {
                                                           @RequestParam("subject") String subject,
                                                           @RequestParam("sendDate")String sendDate) {
         String message = "";
-        if (!FileHelperUtil.hasCSVFormat(csv)) {
+        if (!fileHelperUtil.hasCSVFormat(csv)) {
             message = "Upload een csv file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
 
-        if (!FileHelperUtil.hasHTMLFormat(template)) {
+        if (!fileHelperUtil.hasHTMLFormat(template)) {
             message = "Upload een html file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
@@ -50,8 +53,8 @@ public class MailController {
         }
     }
 
-    @GetMapping("mailing/data")
-    public ResponseEntity<List<Mailing>> getAllMailingData() {
+    @GetMapping("mailing")
+    public ResponseEntity<List<Mailing>> getAllMailings() {
         try {
             List<Mailing> mailings = mailManager.getAllMailings();
             if (mailings.isEmpty()) {
@@ -63,8 +66,8 @@ public class MailController {
         }
     }
 
-    @GetMapping("mailing/data/{id}")
-    public ResponseEntity<Mailing> getMailingDataById(@PathVariable String id) {
+    @GetMapping("mailing/{id}")
+    public ResponseEntity<Mailing> getMailingById(@PathVariable String id) {
         Mailing mailing = mailManager.getMailingById(id);
         if (mailing == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
@@ -72,8 +75,8 @@ public class MailController {
         return ResponseEntity.status(HttpStatus.FOUND).body(mailing);
     }
 
-    @GetMapping("sendto/data")
-    public ResponseEntity<List<MailSendTo>> getAllMailSendTo() {
+    @GetMapping("sendto")
+    public ResponseEntity<List<MailSendTo>> getAllMailsSendTo() {
         try {
             List<MailSendTo> mails = mailManager.getAllMailsSendTo();
             if (mails.isEmpty()) {
@@ -85,7 +88,7 @@ public class MailController {
         }
     }
 
-    @GetMapping("sendto/data/csv")
+    @GetMapping("sendto/csv")
     public ResponseEntity<Resource> getAllMailsSendToAndExportCSV() {
         try {
             String filename = "mailssendto.csv";
@@ -99,7 +102,7 @@ public class MailController {
         }
     }
 
-    @GetMapping("sendto/data/{id}")
+    @GetMapping("sendto/{id}")
     public ResponseEntity<MailSendTo> getMailSendToById(@PathVariable Long id) {
         MailSendTo mail = mailManager.getMailSendToById(id);
         if (mail == null) {
