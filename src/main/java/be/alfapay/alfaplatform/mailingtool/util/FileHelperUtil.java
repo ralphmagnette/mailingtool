@@ -71,31 +71,4 @@ public class FileHelperUtil {
             throw new RuntimeException("Kan template niet uitlezen: " + e.getMessage());
         }
     }
-
-    public ByteArrayInputStream createCSVFile(List<MailSendTo> mails) {
-        final CSVFormat format = CSVFormat.DEFAULT.withFirstRecordAsHeader().withDelimiter(';');
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(out), format);
-            csvPrinter.printRecord("ID", "MailingID", "Email", "Voornaam", "Naam", "Bedrag", "Bon", "Geopend", "Geklikt op link", "Niet afgeleverd");
-            for (MailSendTo mail : mails) {
-                List<? extends Serializable> data = Arrays.asList(
-                        String.valueOf(mail.getId()),
-                        mail.getMailingId(),
-                        mail.getEmail(),
-                        mail.getFirstName(),
-                        mail.getLastName(),
-                        String.valueOf(mail.getAmount()),
-                        mail.getGiftCard(),
-                        String.valueOf(mail.getOpen()),
-                        String.valueOf(mail.getClick()),
-                        String.valueOf(mail.getDropped())
-                );
-                csvPrinter.printRecord(data);
-            }
-            csvPrinter.flush();
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("Kan data niet importeren naar CSV-bestand: " + e.getMessage());
-        }
-    }
 }

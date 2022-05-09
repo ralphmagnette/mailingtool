@@ -96,9 +96,42 @@ public class MailManager implements IMailManager {
     }
 
     @Override
-    public ByteArrayInputStream getAllMailsSendToAndExportCSV() {
-        List<MailSendTo> mails = mailSendToRepository.findAll();
-        return fileHelperUtil.createCSVFile(mails);
+    public String getAllMailsSendToByMailingIdAndExportCSV(String mailingId) {
+        List<MailSendTo> mails = mailSendToRepository.getMailsSendToByMailingId(mailingId);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("id;");
+        stringBuilder.append("mailingId;");
+        stringBuilder.append("email;");
+        stringBuilder.append("voornaam;");
+        stringBuilder.append("naam;");
+        stringBuilder.append("bedrag;");
+        stringBuilder.append("bon;");
+        stringBuilder.append("geopend;");
+        stringBuilder.append("geklikt;");
+        stringBuilder.append("niet afgeleverd" + "\n");
+        for (MailSendTo mail : mails) {
+            stringBuilder.append(mail.getId());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getMailingId());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getEmail());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getFirstName());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getLastName());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getAmount());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getGiftCard());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getOpen());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getClick());
+            stringBuilder.append(";");
+            stringBuilder.append(mail.getDropped());
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
     }
 
     @Override

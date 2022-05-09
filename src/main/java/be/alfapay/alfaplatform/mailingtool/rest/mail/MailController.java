@@ -6,8 +6,6 @@ import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @CrossOrigin(origins="*", allowedHeaders="*")
@@ -22,7 +21,7 @@ import java.util.List;
 @RequestMapping("/alfaplatform-giftcard-next/mail/")
 public class MailController {
     @Autowired
-    private MailManager mailManager;
+    private IMailManager mailManager;
 
     @Autowired
     private FileHelperUtil fileHelperUtil;
@@ -88,15 +87,14 @@ public class MailController {
         }
     }
 
-    @GetMapping("sendto/csv")
-    public ResponseEntity<Resource> getAllMailsSendToAndExportCSV() {
+    @GetMapping(value = "sendto/export/csv/{mailingId}", produces = "text/csv")
+    public ResponseEntity<String> getAllMailsSendToByMailingIdAndExportCSV(HttpServletResponse response,
+                                                                           @PathVariable String mailingId) {
         try {
-            String filename = "mailssendto.csv";
-            InputStreamResource file = new InputStreamResource(mailManager.getAllMailsSendToAndExportCSV());
-            return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
-                    .contentType(MediaType.parseMediaType("application/csv"))
-                    .body(file);
+            String mails = mailManager.getAllMailsSendToByMailingIdAndExportCSV(mailingId);
+            String mailingFilename = "mailing-" + mailingId;
+            response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + mailingFilename + ".csv\"");
+            return ResponseEntity.status(HttpStatus.OK).body(mails);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }

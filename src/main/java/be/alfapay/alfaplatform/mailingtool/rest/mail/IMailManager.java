@@ -18,7 +18,7 @@ public interface IMailManager {
     void setDroppedForMailing(Mailing mailing);
 
     List<MailSendTo> getAllMailsSendTo();
-    ByteArrayInputStream getAllMailsSendToAndExportCSV() throws IOException;
+    String getAllMailsSendToByMailingIdAndExportCSV(String mailingId) throws IOException;
     MailSendTo getMailSendToById(Long id);
     MailSendTo getMailSendToByMailingIdAndEmail(String mailingId, String email);
     void setOpenedForMail(MailSendTo mail);
