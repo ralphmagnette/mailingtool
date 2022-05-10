@@ -41,8 +41,10 @@ public class Mailing {
     @Column(name = "dropped")
     private int dropped;
 
-    public Mailing() {
+    public Mailing() { }
 
+    public Mailing(String id) {
+        this.id = id;
     }
 
     public String getId() {

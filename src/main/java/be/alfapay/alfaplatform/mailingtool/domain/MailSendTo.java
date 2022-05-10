@@ -12,6 +12,9 @@ public class MailSendTo {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "mailing_id")
+    private String mailingId;
+
     @Column(name = "email")
     private String email;
 
@@ -27,12 +30,9 @@ public class MailSendTo {
     @Column(name = "giftcard")
     private String giftCard;
 
-    @Column(name = "mailing_id", updatable = false, insertable = false)
-    private String mailingId;
-
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "mailing_id")
-    private Mailing mailing;
+//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "mailing_id", updatable = false, insertable = false)
+//    private Mailing mailing;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "attachment_id")
@@ -47,6 +47,9 @@ public class MailSendTo {
     @Column(name = "dropped")
     private int dropped;
 
+    @Transient
+    private String error;
+
     public MailSendTo() {
 
     }
@@ -56,6 +59,14 @@ public class MailSendTo {
     }
 
     public void setId(Long id) { this.id = id; }
+
+    public String getMailingId() {
+        return mailingId;
+    }
+
+    public void setMailingId(String mailingId) {
+        this.mailingId = mailingId;
+    }
 
     public String getEmail() {
         return email;
@@ -97,21 +108,13 @@ public class MailSendTo {
         this.giftCard = giftCard;
     }
 
-    public String getMailingId() {
-        return mailingId;
-    }
+   // public Mailing getMailing() {
+   //     return mailing;
+    //}
 
-    public void setMailingId(String mailingId) {
-        this.mailingId = mailingId;
-    }
-
-    public Mailing getMailing() {
-        return mailing;
-    }
-
-    public void setMailing(Mailing mailing) {
-        this.mailing = mailing;
-    }
+    //public void setMailing(Mailing mailing) {
+    //    this.mailing = mailing;
+    //}
 
     public List<Attachment> getAttachments() {
         return attachments;

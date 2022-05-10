@@ -1,15 +1,15 @@
 package be.alfapay.alfaplatform.mailingtool.util;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
-import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
+import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -37,20 +37,18 @@ public class FileHelperUtil {
         return LOCAL_PATH + ASSETS_PATH + fileName;
     }
 
-    public List<MailSendTo> readDataOutOfFile(InputStream is) {
-        List<MailSendTo> data = new ArrayList<>();
+    public List<MailSendToDTO> readDataOutOfFile(InputStream is) {
+        List<MailSendToDTO> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
             String headerLine = reader.readLine();
-            Mailing mailing = new Mailing();
             while ((line = reader.readLine()) != null) {
-                MailSendTo row = new MailSendTo();
+                MailSendToDTO row = new MailSendToDTO();
                 String[] dataSplit = line.split(" |;");
                 row.setFirstName(dataSplit[0]);
                 row.setLastName(dataSplit[1]);
                 row.setEmail(dataSplit[2]);
                 row.setAmount(Integer.parseInt(dataSplit[3]));
-                row.setMailing(mailing);
                 data.add(row);
             }
             return data;

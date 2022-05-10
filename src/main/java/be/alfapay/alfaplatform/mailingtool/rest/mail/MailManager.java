@@ -1,7 +1,9 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
+import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
+import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
 import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
 import com.sendgrid.helpers.mail.objects.Email;
@@ -10,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,35 +33,42 @@ public class MailManager implements IMailManager {
     private MailSenderUtil mailSenderUtil;
 
     @Override
-    public void processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String subject, String sendDate) {
+    public List<MailSendToDTO> processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String subject, String sendDate) {
         try {
-            List<MailSendTo> receivers = fileHelperUtil.readDataOutOfFile(csv.getInputStream());
-            String htmlTemplate = fileHelperUtil.getContentFromHtmlTemplate(template.getInputStream());
-            Mailing mailing = new Mailing();
-            mailing.setId(UUID.randomUUID().toString());
-            for (MailSendTo mail : receivers) {
-                Personalization personalization = new Personalization();
-                personalization.addTo(new Email(mail.getEmail()));
-                mail.setMailingId(mailing.getId());
-                mail.getMailing().setId(mailing.getId());
-                mail.getMailing().setArticleId(articleId);
-                mail.getMailing().setSubject(subject);
-                mail.getMailing().setCsv(fileHelperUtil.getFilePath(csv.getOriginalFilename()));
-                mail.getMailing().setTemplate(fileHelperUtil.getFilePath(template.getOriginalFilename()));
-                mail.getMailing().setDate(LocalDate.now().toString());
-                if (mail.getMailing().getSendDate() == null) {
-                    mail.getMailing().setSendDate(mail.getMailing().getDate());
+            List<MailSendToDTO> receivers = fileHelperUtil.readDataOutOfFile(csv.getInputStream());
+            List<MailSendToDTO> errors = validate(receivers, articleId, subject);
+
+            if (errors.isEmpty()) {
+                String htmlTemplate = fileHelperUtil.getContentFromHtmlTemplate(template.getInputStream());
+                Mailing mailing = new Mailing(UUID.randomUUID().toString());
+                mailing.setArticleId(articleId);
+                mailing.setSubject(subject);
+                mailing.setCsv(fileHelperUtil.getFilePath(csv.getOriginalFilename()));
+                mailing.setTemplate(fileHelperUtil.getFilePath(template.getOriginalFilename()));
+                mailing.setDate(LocalDate.now().toString());
+                if (sendDate == null || sendDate.isEmpty()) {
+                    mailing.setSendDate(LocalDate.now().toString());
                 }
-                personalization.addSubstitution("{MESSAGE}", "Beste " + mail.getFirstName() + " " + mail.getLastName());
-                personalization.addCustomArg("mailing_id", mail.getMailingId());
-                mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), mail.getMailing().getSubject(), htmlTemplate, personalization, mail.getAttachments());
-                mailing = mail.getMailing();
-                mailSendToRepository.save(mail);
+                mailing.setSendDate(sendDate);
+                mailingRepository.save(mailing);
+
+                for (MailSendToDTO mail : receivers) {
+                    mail.setMailingId(mailing.getId());
+                    Personalization personalization = new Personalization();
+                    personalization.addTo(new Email(mail.getEmail()));
+                    personalization.addSubstitution("{MESSAGE}", mail.getFirstName() + " " + mail.getLastName());
+                    personalization.addCustomArg("mailing_id", mail.getMailingId());
+                    mailSendToRepository.save(mapMailSendToDTOToMailSendTo(mail));
+
+                    mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), subject, htmlTemplate, personalization, mail.getAttachments());
+                }
+            } else {
+                return errors;
             }
-            mailingRepository.save(mailing);
         } catch (IOException e) {
             throw new RuntimeException("Kan data uit CSV-bestand niet opslaan: " + e.getMessage());
         }
+        return null;
     }
 
     @Override
@@ -70,24 +79,6 @@ public class MailManager implements IMailManager {
     @Override
     public Mailing getMailingById(String id) {
         return mailingRepository.findById(id).orElse(null);
-    }
-
-    @Override
-    public void setOpenedForMailing(Mailing mailing) {
-        mailing.setOpen(mailing.getOpen() + 1);
-        mailingRepository.save(mailing);
-    }
-
-    @Override
-    public void setClickedLinkInMailing(Mailing mailing) {
-        mailing.setClick(mailing.getClick() + 1);
-        mailingRepository.save(mailing);
-    }
-
-    @Override
-    public void setDroppedForMailing(Mailing mailing) {
-        mailing.setDropped(mailing.getDropped() + 1);
-        mailingRepository.save(mailing);
     }
 
     @Override
@@ -145,20 +136,112 @@ public class MailManager implements IMailManager {
     }
 
     @Override
-    public void setOpenedForMail(MailSendTo mail) {
+    public ResponseMessage setOpened(String mailingId, String email) {
+        MailSendTo mail = getMailSendToByMailingIdAndEmail(mailingId,email);
+        if (mail == null) {
+            return new ResponseMessage("Er kan geen verzonden mail gevonden worden voor mailing met id: " + mailingId + ".");
+        }
         mail.setOpen(mail.getOpen() + 1);
         mailSendToRepository.save(mail);
+
+        if (mail.getOpen() == 1) {
+            Mailing mailing = getMailingById(mail.getMailingId());
+            if (mailing == null) {
+                return new ResponseMessage("Mailing met id: " + mailingId + " kan niet worden gevonden.");
+            }
+            mailing.setOpen(mailing.getOpen() + 1);
+            mailingRepository.save(mailing);
+        }
+        return new ResponseMessage("Mailing met id: " + mailingId + " is geopend door " + mail.getFirstName()  + " " + mail.getLastName());
     }
 
     @Override
-    public void setClickedLinkInMail(MailSendTo mail) {
+    public ResponseMessage setClicked(String mailingId, String email) {
+        MailSendTo mail = getMailSendToByMailingIdAndEmail(mailingId, email);
+        if (mail == null) {
+            return new ResponseMessage("Er kan geen verzonden mail gevonden worden voor mailing met id: " + mailingId + ".");
+        }
         mail.setClick(mail.getClick() + 1);
         mailSendToRepository.save(mail);
+
+        if (mail.getClick() == 1) {
+            Mailing mailing = getMailingById(mailingId);
+            if (mailing == null) {
+                return new ResponseMessage("Mailing met id: " + mailingId + " kan niet worden gevonden.");
+            }
+            mailing.setClick(mailing.getClick() + 1);
+            mailingRepository.save(mailing);
+        }
+        return new ResponseMessage("Voor mailing met id: " + mailingId + " is er op de link geklikt door " + mail.getFirstName()  + " " + mail.getLastName());
     }
 
     @Override
-    public void setDroppedForMail(MailSendTo mail) {
+    public ResponseMessage setDropped(String mailingId, String email) {
+        MailSendTo mail = getMailSendToByMailingIdAndEmail(mailingId, email);
+        if (mail == null) {
+            return new ResponseMessage("Er kan geen verzonden mail gevonden worden voor mailing met id: " + mailingId + ".");
+        }
         mail.setDropped(mail.getDropped() + 1);
         mailSendToRepository.save(mail);
+
+        if (mail.getDropped() == 1) {
+            Mailing mailing = getMailingById(mailingId);
+            if (mailing == null) {
+                return new ResponseMessage("Mailing met id: " + mailingId + " kan niet worden gevonden.");
+            }
+            mailing.setDropped(mailing.getDropped() + 1);
+            mailingRepository.save(mailing);
+        }
+        return new ResponseMessage("Mailing met id: " + mailingId + " kan niet worden afgeleverd aan " + mail.getEmail() + ".");
+    }
+
+    private List<MailSendToDTO> validate(List<MailSendToDTO> receivers, Integer articleId, String subject) {
+        List<MailSendToDTO> errors = new ArrayList<>();
+
+       for (MailSendToDTO mail : receivers) {
+            if (!isValid(mail, articleId, subject)) {
+                errors.add(mail);
+            }
+        }
+        return errors;
+    }
+
+    private boolean isValid(MailSendToDTO mail, Integer articleId, String subject) {
+        if (articleId == null || articleId <= 0) {
+            mail.setError("Artikel ID mag niet leeg zijn of kleiner dan 0 zijn.");
+            return false;
+        }
+
+        if (subject == null || subject.isEmpty()) {
+            mail.setError("Subject mag niet leeg zijn.");
+            return false;
+        }
+
+        if (mail.getEmail() == null || !mail.getEmail().matches("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
+            mail.setError("Er moet een geldig email adres worden ingegeven.");
+            return false;
+        }
+
+        if (mail.getFirstName() == null || mail.getFirstName().isEmpty()) {
+            mail.setError("Voornaam mag niet leeg zijn.");
+            return false;
+        }
+
+        if (mail.getAmount() < 0) {
+            mail.setError("Bedrag kan niet kleiner dan 0 zijn.");
+            return false;
+        }
+        return true;
+    }
+
+    private MailSendTo mapMailSendToDTOToMailSendTo(MailSendToDTO mailSendToDTO) {
+        MailSendTo mailSendTo = new MailSendTo();
+        mailSendTo.setMailingId(mailSendToDTO.getMailingId());
+        mailSendTo.setEmail(mailSendToDTO.getEmail());
+        mailSendTo.setFirstName(mailSendToDTO.getFirstName());
+        mailSendTo.setLastName(mailSendTo.getLastName());
+        mailSendTo.setAmount(mailSendToDTO.getAmount());
+
+        return mailSendTo;
     }
 }
