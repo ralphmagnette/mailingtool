@@ -1,6 +1,5 @@
 package be.alfapay.alfaplatform.mailingtool.util;
 
-import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;

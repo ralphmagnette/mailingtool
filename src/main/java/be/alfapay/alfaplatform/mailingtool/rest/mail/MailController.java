@@ -1,9 +1,9 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
-import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
+import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
 import org.springframework.beans.factory.annotation.Autowired;

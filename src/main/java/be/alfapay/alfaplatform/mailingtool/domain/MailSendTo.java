@@ -30,10 +30,6 @@ public class MailSendTo {
     @Column(name = "giftcard")
     private String giftCard;
 
-//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinColumn(name = "mailing_id", updatable = false, insertable = false)
-//    private Mailing mailing;
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "attachment_id")
     private List<Attachment> attachments = new ArrayList<>();
@@ -107,14 +103,6 @@ public class MailSendTo {
     public void setGiftCard(String giftCard) {
         this.giftCard = giftCard;
     }
-
-   // public Mailing getMailing() {
-   //     return mailing;
-    //}
-
-    //public void setMailing(Mailing mailing) {
-    //    this.mailing = mailing;
-    //}
 
     public List<Attachment> getAttachments() {
         return attachments;

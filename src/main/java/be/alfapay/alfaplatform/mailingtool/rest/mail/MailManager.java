@@ -1,8 +1,8 @@
 package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
-import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
+import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
 import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
@@ -46,10 +46,12 @@ public class MailManager implements IMailManager {
                 mailing.setCsv(fileHelperUtil.getFilePath(csv.getOriginalFilename()));
                 mailing.setTemplate(fileHelperUtil.getFilePath(template.getOriginalFilename()));
                 mailing.setDate(LocalDate.now().toString());
-                if (sendDate == null || sendDate.isEmpty()) {
-                    mailing.setSendDate(LocalDate.now().toString());
+                //TODO implement later timestamp for sending mail
+                if (sendDate == null || sendDate.equals("")) {
+                    mailing.setSendDate(mailing.getDate());
+                } else {
+                    mailing.setSendDate(sendDate);
                 }
-                mailing.setSendDate(sendDate);
                 mailingRepository.save(mailing);
 
                 for (MailSendToDTO mail : receivers) {
@@ -207,6 +209,7 @@ public class MailManager implements IMailManager {
     }
 
     private boolean isValid(MailSendToDTO mail, Integer articleId, String subject) {
+        //TODO implement showing multiple errors
         if (articleId == null || articleId <= 0) {
             mail.setError("Artikel ID mag niet leeg zijn of kleiner dan 0 zijn.");
             return false;
@@ -239,7 +242,7 @@ public class MailManager implements IMailManager {
         mailSendTo.setMailingId(mailSendToDTO.getMailingId());
         mailSendTo.setEmail(mailSendToDTO.getEmail());
         mailSendTo.setFirstName(mailSendToDTO.getFirstName());
-        mailSendTo.setLastName(mailSendTo.getLastName());
+        mailSendTo.setLastName(mailSendToDTO.getLastName());
         mailSendTo.setAmount(mailSendToDTO.getAmount());
 
         return mailSendTo;
