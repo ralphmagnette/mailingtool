@@ -14,8 +14,9 @@ public class MailSendToDTO {
     private String firstName;
     private String lastName;
     private int amount;
+    private int lineNumber;
     private List<Attachment> attachments = new ArrayList<>();
-    private String error;
+    private List<String> errors;
 
     public MailSendToDTO() {
 
@@ -77,6 +78,14 @@ public class MailSendToDTO {
         this.amount = amount;
     }
 
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    public void setLineNumber(int lineNumber) {
+        this.lineNumber = lineNumber;
+    }
+
     public List<Attachment> getAttachments() {
         return attachments;
     }
@@ -85,11 +94,11 @@ public class MailSendToDTO {
         this.attachments = attachments;
     }
 
-    public String getError() {
-        return error;
+    public List<String> getErrors() {
+        return errors;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setErrors(List<String> errors) {
+        this.errors = errors;
     }
 }

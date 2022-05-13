@@ -209,32 +209,33 @@ public class MailManager implements IMailManager {
     }
 
     private boolean isValid(MailSendToDTO mail, Integer articleId, String subject) {
-        //TODO implement showing multiple errors
+        List<String> errors = new ArrayList<>();
+
         if (articleId == null || articleId <= 0) {
-            mail.setError("Artikel ID mag niet leeg zijn of kleiner dan 0 zijn.");
-            return false;
+            errors.add("Artikel ID mag niet leeg zijn of kleiner dan 0 zijn.");
         }
 
         if (subject == null || subject.isEmpty()) {
-            mail.setError("Subject mag niet leeg zijn.");
-            return false;
+            errors.add("Subject mag niet leeg zijn.");
         }
 
         if (mail.getEmail() == null || !mail.getEmail().matches("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")) {
-            mail.setError("Er moet een geldig email adres worden ingegeven.");
-            return false;
+            errors.add("Er moet een geldig email adres worden ingegeven.");
         }
 
         if (mail.getFirstName() == null || mail.getFirstName().isEmpty()) {
-            mail.setError("Voornaam mag niet leeg zijn.");
-            return false;
+            errors.add("Voornaam mag niet leeg zijn.");
         }
 
         if (mail.getAmount() < 0) {
-            mail.setError("Bedrag kan niet kleiner dan 0 zijn.");
-            return false;
+            errors.add("Bedrag kan niet kleiner dan 0 zijn.");
         }
-        return true;
+
+        if (errors.isEmpty()) {
+            return true;
+        }
+        mail.setErrors(errors);
+        return false;
     }
 
     private MailSendTo mapMailSendToDTOToMailSendTo(MailSendToDTO mailSendToDTO) {

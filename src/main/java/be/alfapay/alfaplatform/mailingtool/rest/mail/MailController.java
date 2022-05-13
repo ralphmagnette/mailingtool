@@ -27,22 +27,27 @@ public class MailController {
     private FileHelperUtil fileHelperUtil;
 
     @PostMapping("/send")
-    public ResponseEntity<List<MailSendToDTO>> processMailing(@RequestParam("csv") MultipartFile csv,
-                                                              @RequestParam("template") MultipartFile template,
-                                                              @RequestParam("articleId") Integer articleId,
-                                                              @RequestParam("subject") String subject,
-                                                              @RequestParam("sendDate")String sendDate) {
+    public ResponseEntity processMailing(@RequestParam("csv") MultipartFile csv,
+                                          @RequestParam("template") MultipartFile template,
+                                          @RequestParam("articleId") Integer articleId,
+                                          @RequestParam("subject") String subject,
+                                          @RequestParam("sendDate")String sendDate) {
         if (!fileHelperUtil.hasCSVFormat(csv)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            String message = "Upload een csv file!";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
 
         if (!fileHelperUtil.hasHTMLFormat(template)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            String message = "Upload een html file!";
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
         }
 
         try {
-            List<MailSendToDTO> mailing = mailManager.processMailing(csv, template, articleId, subject, sendDate);
-            return ResponseEntity.status(HttpStatus.OK).body(mailing);
+            List<MailSendToDTO> mailingErrors = mailManager.processMailing(csv, template, articleId, subject, sendDate);
+            if (!mailingErrors.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mailingErrors);
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(null);
         }

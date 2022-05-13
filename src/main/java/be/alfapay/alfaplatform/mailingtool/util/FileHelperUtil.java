@@ -40,6 +40,7 @@ public class FileHelperUtil {
         List<MailSendToDTO> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
             String line;
+            int lineNumber = 2;
             String headerLine = reader.readLine();
             while ((line = reader.readLine()) != null) {
                 MailSendToDTO row = new MailSendToDTO();
@@ -48,6 +49,7 @@ public class FileHelperUtil {
                 row.setLastName(dataSplit[1]);
                 row.setEmail(dataSplit[2]);
                 row.setAmount(Integer.parseInt(dataSplit[3]));
+                row.setLineNumber(lineNumber++);
                 data.add(row);
             }
             return data;
