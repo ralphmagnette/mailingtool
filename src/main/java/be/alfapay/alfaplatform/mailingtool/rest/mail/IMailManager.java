@@ -17,6 +17,7 @@ public interface IMailManager {
 
     List<MailSendTo> getAllMailsSendTo();
     MailSendTo getMailSendToById(Long id);
+    List<MailSendTo> getAllMailsSendToByMailingId(String mailingId);
     MailSendTo getMailSendToByMailingIdAndEmail(String mailingId, String email);
     String getAllMailsSendToByMailingIdAndExportCSV(String mailingId) throws IOException;
 

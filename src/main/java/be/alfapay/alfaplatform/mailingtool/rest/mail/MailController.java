@@ -28,10 +28,10 @@ public class MailController {
 
     @PostMapping("/send")
     public ResponseEntity processMailing(@RequestParam("csv") MultipartFile csv,
-                                          @RequestParam("template") MultipartFile template,
-                                          @RequestParam("articleId") Integer articleId,
-                                          @RequestParam("subject") String subject,
-                                          @RequestParam("sendDate")String sendDate) {
+                                         @RequestParam("template") MultipartFile template,
+                                         @RequestParam("articleId") Integer articleId,
+                                         @RequestParam("subject") String subject,
+                                         @RequestParam("sendDate")String sendDate) {
         if (!fileHelperUtil.hasCSVFormat(csv)) {
             String message = "Upload een csv file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
@@ -78,11 +78,11 @@ public class MailController {
     @GetMapping("/sendto")
     public ResponseEntity<List<MailSendTo>> getAllMailsSendTo() {
         try {
-            List<MailSendTo> mails = mailManager.getAllMailsSendTo();
-            if (mails.isEmpty()) {
+            List<MailSendTo> mailsSendTo = mailManager.getAllMailsSendTo();
+            if (mailsSendTo.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
-            return ResponseEntity.status(HttpStatus.OK).body(mails);
+            return ResponseEntity.status(HttpStatus.OK).body(mailsSendTo);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(null);
         }
@@ -90,11 +90,20 @@ public class MailController {
 
     @GetMapping("/sendto/{id}")
     public ResponseEntity<MailSendTo> getMailSendToById(@PathVariable Long id) {
-        MailSendTo mail = mailManager.getMailSendToById(id);
-        if (mail == null) {
+        MailSendTo mailsSendTo = mailManager.getMailSendToById(id);
+        if (mailsSendTo == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
-        return ResponseEntity.status(HttpStatus.FOUND).body(mail);
+        return ResponseEntity.status(HttpStatus.FOUND).body(mailsSendTo);
+    }
+
+    @GetMapping("/sendto/mails/{mailingId}")
+    public ResponseEntity<List<MailSendTo>> getAllMailsSendToByMailingId(@PathVariable String mailingId) {
+        List<MailSendTo> mailsSendTo = mailManager.getAllMailsSendToByMailingId(mailingId);
+        if (mailsSendTo.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(mailsSendTo);
     }
 
     @GetMapping(value = "/sendto/export/csv/{mailingId}", produces = "text/csv")

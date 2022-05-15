@@ -133,6 +133,11 @@ public class MailManager implements IMailManager {
     }
 
     @Override
+    public List<MailSendTo> getAllMailsSendToByMailingId(String mailingId) {
+        return mailSendToRepository.getMailsSendToByMailingId(mailingId);
+    }
+
+    @Override
     public MailSendTo getMailSendToByMailingIdAndEmail(String mailingId, String email) {
         return mailSendToRepository.getMailSendToByMailingIdAndEmail(mailingId, email);
     }
@@ -234,6 +239,7 @@ public class MailManager implements IMailManager {
         if (errors.isEmpty()) {
             return true;
         }
+
         mail.setErrors(errors);
         return false;
     }
