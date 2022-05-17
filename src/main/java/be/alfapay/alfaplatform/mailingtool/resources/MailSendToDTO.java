@@ -1,9 +1,7 @@
 package be.alfapay.alfaplatform.mailingtool.resources;
 
 import be.alfapay.alfaplatform.mailingtool.domain.Attachment;
-import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MailSendToDTO {
@@ -15,7 +13,7 @@ public class MailSendToDTO {
     private String lastName;
     private int amount;
     private int lineNumber;
-    private List<Attachment> attachments = new ArrayList<>();
+    private List<Attachment> attachments;
     private List<String> errors;
 
     public MailSendToDTO() {

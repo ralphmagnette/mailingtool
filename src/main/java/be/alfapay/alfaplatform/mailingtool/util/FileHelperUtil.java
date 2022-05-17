@@ -8,6 +8,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,8 +17,6 @@ import java.util.List;
 public class FileHelperUtil {
     private static final String TYPE_CSV = "text/csv";
     private static final String TYPE_HTML = "text/html";
-    private static final String LOCAL_PATH = "C:\\Users\\ralph\\OneDrive\\Documents\\Gift2Give\\";
-    private static final String ASSETS_PATH = "assets\\";
 
     public boolean hasCSVFormat(MultipartFile csv) {
         if (!TYPE_CSV.equals(csv.getContentType())) {
@@ -30,10 +30,6 @@ public class FileHelperUtil {
             return false;
         }
         return true;
-    }
-
-    public String getFilePath(String fileName) {
-        return LOCAL_PATH + ASSETS_PATH + fileName;
     }
 
     public List<MailSendToDTO> readDataOutOfFile(InputStream is) {
@@ -58,8 +54,8 @@ public class FileHelperUtil {
         }
     }
 
-    public String getContentFromHtmlTemplate(InputStream is) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+    public String getContentFromHtmlTemplate(Path path) {
+        try (BufferedReader reader = Files.newBufferedReader(path)) {
             String line;
             StringBuilder template = new StringBuilder();
             while ((line = reader.readLine()) != null) {

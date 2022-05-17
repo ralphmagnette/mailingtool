@@ -1,9 +1,6 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "ap_mailing")
@@ -27,10 +24,10 @@ public class Mailing {
     private String template;
 
     @Column(name = "date")
-    private String date;
+    private Long date;
 
     @Column(name = "send_date")
-    private String sendDate;
+    private Long sendDate;
 
     @Column(name = "open")
     private int open;
@@ -40,6 +37,10 @@ public class Mailing {
 
     @Column(name = "dropped")
     private int dropped;
+
+    @Column(name = "status", columnDefinition = "enum('CREATED','PROCESSING','FINISHED','CANCELLED')")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     public Mailing() { }
 
@@ -95,19 +96,19 @@ public class Mailing {
         this.template = template;
     }
 
-    public String getDate() {
+    public Long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Long date) {
         this.date = date;
     }
 
-    public String getSendDate() {
+    public Long getSendDate() {
         return sendDate;
     }
 
-    public void setSendDate(String sendDate) {
+    public void setSendDate(Long sendDate) {
         this.sendDate = sendDate;
     }
 
@@ -133,5 +134,13 @@ public class Mailing {
 
     public void setDropped(int dropped) {
         this.dropped = dropped;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

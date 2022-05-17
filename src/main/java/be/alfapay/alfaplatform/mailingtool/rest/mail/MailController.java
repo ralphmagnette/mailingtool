@@ -3,6 +3,7 @@ package be.alfapay.alfaplatform.mailingtool.rest.mail;
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
 import be.alfapay.alfaplatform.mailingtool.domain.SendGridEvent;
+import be.alfapay.alfaplatform.mailingtool.domain.Status;
 import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
@@ -27,11 +28,11 @@ public class MailController {
     private FileHelperUtil fileHelperUtil;
 
     @PostMapping("/send")
-    public ResponseEntity processMailing(@RequestParam("csv") MultipartFile csv,
-                                         @RequestParam("template") MultipartFile template,
-                                         @RequestParam("articleId") Integer articleId,
-                                         @RequestParam("subject") String subject,
-                                         @RequestParam("sendDate")String sendDate) {
+    public ResponseEntity scheduleMailing(@RequestParam("csv") MultipartFile csv,
+                                          @RequestParam("template") MultipartFile template,
+                                          @RequestParam("articleId") Integer articleId,
+                                          @RequestParam("subject") String subject,
+                                          @RequestParam("sendDate")Long sendDate) {
         if (!fileHelperUtil.hasCSVFormat(csv)) {
             String message = "Upload een csv file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
@@ -43,7 +44,7 @@ public class MailController {
         }
 
         try {
-            List<MailSendToDTO> mailingErrors = mailManager.processMailing(csv, template, articleId, subject, sendDate);
+            List<MailSendToDTO> mailingErrors = mailManager.scheduleMailing(csv, template, articleId, subject, sendDate);
             if (!mailingErrors.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mailingErrors);
             }
@@ -73,6 +74,16 @@ public class MailController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.status(HttpStatus.FOUND).body(mailing);
+    }
+
+    @PutMapping("/mailing/cancel/{id}")
+    public ResponseEntity<Mailing> cancelMailing(@PathVariable String id) {
+        Mailing mailing = mailManager.getMailingById(id);
+        if (mailing == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        mailManager.setStatus(mailing.getId(), Status.CANCELLED);
+        return ResponseEntity.status(HttpStatus.OK).body(mailing);
     }
 
     @GetMapping("/sendto")

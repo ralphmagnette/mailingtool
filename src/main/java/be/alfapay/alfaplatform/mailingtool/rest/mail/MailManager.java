@@ -2,18 +2,19 @@ package be.alfapay.alfaplatform.mailingtool.rest.mail;
 
 import be.alfapay.alfaplatform.mailingtool.domain.MailSendTo;
 import be.alfapay.alfaplatform.mailingtool.domain.Mailing;
+import be.alfapay.alfaplatform.mailingtool.domain.Status;
 import be.alfapay.alfaplatform.mailingtool.resources.MailSendToDTO;
 import be.alfapay.alfaplatform.mailingtool.rest.mail.message.ResponseMessage;
 import be.alfapay.alfaplatform.mailingtool.util.FileHelperUtil;
-import be.alfapay.alfaplatform.mailingtool.util.MailSenderUtil;
-import com.sendgrid.helpers.mail.objects.Email;
-import com.sendgrid.helpers.mail.objects.Personalization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,40 +30,36 @@ public class MailManager implements IMailManager {
     @Autowired
     private FileHelperUtil fileHelperUtil;
 
-    @Autowired
-    private MailSenderUtil mailSenderUtil;
-
     @Override
-    public List<MailSendToDTO> processMailing(MultipartFile csv, MultipartFile template, Integer articleId, String subject, String sendDate) {
+    public List<MailSendToDTO> scheduleMailing(MultipartFile csv, MultipartFile template, Integer articleId,
+                                               String subject, Long sendDate) {
         try {
             List<MailSendToDTO> receivers = fileHelperUtil.readDataOutOfFile(csv.getInputStream());
             List<MailSendToDTO> errors = validate(receivers, articleId, subject);
 
             if (errors.isEmpty()) {
-                String htmlTemplate = fileHelperUtil.getContentFromHtmlTemplate(template.getInputStream());
+                String csvPath = "C:\\Users\\ralph\\OneDrive\\Documents\\Gift2Give\\assets\\" + csv.getOriginalFilename();
+                String templatePath = "C:\\Users\\ralph\\OneDrive\\Documents\\Gift2Give\\assets\\" + template.getOriginalFilename();
+                csv.transferTo(new File(csvPath));
+                template.transferTo(new File(templatePath));
                 Mailing mailing = new Mailing(UUID.randomUUID().toString());
                 mailing.setArticleId(articleId);
                 mailing.setSubject(subject);
-                mailing.setCsv(fileHelperUtil.getFilePath(csv.getOriginalFilename()));
-                mailing.setTemplate(fileHelperUtil.getFilePath(template.getOriginalFilename()));
-                mailing.setDate(LocalDate.now().toString());
-                //TODO implement later timestamp for sending mail
-                if (sendDate == null || sendDate.equals("")) {
-                    mailing.setSendDate(mailing.getDate());
+                mailing.setCsv(csvPath);
+                mailing.setTemplate(templatePath);
+                Long now = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Brussels")).toInstant().toEpochMilli();
+                mailing.setDate(now);
+                if (sendDate == null) {
+                    mailing.setSendDate(now + 3600000);
                 } else {
-                    mailing.setSendDate(sendDate);
+                    mailing.setSendDate(sendDate + 3600000);
                 }
+                mailing.setStatus(Status.CREATED);
                 mailingRepository.save(mailing);
 
                 for (MailSendToDTO mail : receivers) {
                     mail.setMailingId(mailing.getId());
-                    Personalization personalization = new Personalization();
-                    personalization.addTo(new Email(mail.getEmail()));
-                    personalization.addSubstitution("{MESSAGE}", mail.getFirstName() + " " + mail.getLastName());
-                    personalization.addCustomArg("mailing_id", mail.getMailingId());
                     mailSendToRepository.save(mapMailSendToDTOToMailSendTo(mail));
-
-                    mailSenderUtil.sendMail("info@gift2give.org", mail.getEmail(), subject, htmlTemplate, personalization, mail.getAttachments());
                 }
             } else {
                 return errors;
@@ -75,12 +72,22 @@ public class MailManager implements IMailManager {
 
     @Override
     public List<Mailing> getAllMailings() {
-        return mailingRepository.findAll();
+        return mailingRepository.findAllByOrderByDateAsc();
+    }
+
+    @Override
+    public List<Mailing> getMailingsByStatusAndSendDateAfter(Status status, Long after) {
+        return mailingRepository.findMailingsByStatusAndSendDateAfter(status, after);
     }
 
     @Override
     public Mailing getMailingById(String id) {
         return mailingRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public Mailing saveMailing(Mailing mailing) {
+        return mailingRepository.save(mailing);
     }
 
     @Override
@@ -200,6 +207,17 @@ public class MailManager implements IMailManager {
             mailingRepository.save(mailing);
         }
         return new ResponseMessage("Mailing met id: " + mailingId + " kan niet worden afgeleverd aan " + mail.getEmail() + ".");
+    }
+
+    @Override
+    public ResponseMessage setStatus(String mailingId, Status status) {
+        Mailing mailing = mailingRepository.findById(mailingId).orElse(null);
+        if (mailing == null) {
+            return new ResponseMessage("Mailing met id: " + mailingId + " kan niet worden gevonden.");
+        }
+        mailing.setStatus(status);
+        mailingRepository.save(mailing);
+        return new ResponseMessage("Mailing met id: " + mailingId + "is geannuleerd.");
     }
 
     private List<MailSendToDTO> validate(List<MailSendToDTO> receivers, Integer articleId, String subject) {
