@@ -1,22 +1,9 @@
 package be.alfapay.alfaplatform.mailingtool.domain;
 
-import javax.persistence.*;
-
-@Entity
-@Table(name = "ap_attachment")
 public class Attachment {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
     private Long id;
-
-    @Column(name = "data")
     private byte[] data;
-
-    @Column(name = "name")
     private String name;
-
-    @Column(name = "mime_type")
     private String mimeType;
 
     public Attachment() {

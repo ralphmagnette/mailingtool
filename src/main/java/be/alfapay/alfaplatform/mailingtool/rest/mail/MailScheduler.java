@@ -30,6 +30,7 @@ public class MailScheduler {
 
     @Scheduled(cron = "0 0/5 * * * *")
     public void processMailing() {
+        System.out.println("Running scheduler");
         Long now = ZonedDateTime.of(LocalDateTime.now(), ZoneId.of("Europe/Brussels")).toInstant().toEpochMilli();
         List<Mailing> mailings = mailManager.getMailingsByStatusAndSendDateAfter(Status.CREATED, now + 600000);
         for (Mailing mailing : mailings) {

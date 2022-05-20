@@ -72,7 +72,7 @@ public class MailManager implements IMailManager {
 
     @Override
     public List<Mailing> getAllMailings() {
-        return mailingRepository.findAllByOrderByDateAsc();
+        return mailingRepository.findAllByOrderByDateDesc();
     }
 
     @Override

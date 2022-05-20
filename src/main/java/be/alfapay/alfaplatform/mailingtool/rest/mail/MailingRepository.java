@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface MailingRepository extends JpaRepository<Mailing, String> {
-    List<Mailing> findAllByOrderByDateAsc();
+    List<Mailing> findAllByOrderByDateDesc();
     List<Mailing> findMailingsByStatusAndSendDateAfter(Status status, Long after);
 }

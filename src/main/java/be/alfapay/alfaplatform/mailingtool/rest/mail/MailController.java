@@ -32,7 +32,7 @@ public class MailController {
                                           @RequestParam("template") MultipartFile template,
                                           @RequestParam("articleId") Integer articleId,
                                           @RequestParam("subject") String subject,
-                                          @RequestParam("sendDate")Long sendDate) {
+                                          @RequestParam(value = "sendDate", required = false) Long sendDate) {
         if (!fileHelperUtil.hasCSVFormat(csv)) {
             String message = "Upload een csv file!";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
@@ -45,7 +45,7 @@ public class MailController {
 
         try {
             List<MailSendToDTO> mailingErrors = mailManager.scheduleMailing(csv, template, articleId, subject, sendDate);
-            if (!mailingErrors.isEmpty()) {
+            if (mailingErrors != null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mailingErrors);
             }
             return ResponseEntity.status(HttpStatus.OK).body(null);

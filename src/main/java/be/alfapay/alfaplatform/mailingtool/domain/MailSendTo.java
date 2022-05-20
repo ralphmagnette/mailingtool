@@ -30,10 +30,6 @@ public class MailSendTo {
     @Column(name = "giftcard")
     private String giftCard;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "attachment_id")
-    private List<Attachment> attachments = new ArrayList<>();
-
     @Column(name = "open")
     private int open;
 
@@ -44,7 +40,7 @@ public class MailSendTo {
     private int dropped;
 
     @Transient
-    private String error;
+    private List<Attachment> attachments = new ArrayList<>();
 
     public MailSendTo() {
 
@@ -104,14 +100,6 @@ public class MailSendTo {
         this.giftCard = giftCard;
     }
 
-    public List<Attachment> getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(List<Attachment> attachments) {
-        this.attachments = attachments;
-    }
-
     public int getOpen() {
         return open;
     }
@@ -134,5 +122,13 @@ public class MailSendTo {
 
     public void setDropped(int dropped) {
         this.dropped = dropped;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 }
