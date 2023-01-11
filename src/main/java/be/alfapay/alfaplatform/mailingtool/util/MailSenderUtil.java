@@ -18,7 +18,7 @@ import java.util.List;
 
 @Component
 public class MailSenderUtil {
-    private static final String SENDGRID_APIKEY = "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";
+    private static final String SENDGRID_APIKEY = "";
 
     public MailSenderUtil() {
 
